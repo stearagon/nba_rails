@@ -23,15 +23,15 @@ ActiveRecord::Schema.define(version: 20151122182530) do
     t.boolean  "overtime?",      null: false
     t.boolean  "national_game?", null: false
     t.boolean  "TNT?",           null: false
-    t.integer  "away_team",      null: false
-    t.integer  "home_team",      null: false
+    t.integer  "away_team_id",   null: false
+    t.integer  "home_team_id",   null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "games", ["away_team"], name: "index_games_on_away_team", using: :btree
+  add_index "games", ["away_team_id"], name: "index_games_on_away_team_id", using: :btree
   add_index "games", ["date"], name: "index_games_on_date", using: :btree
-  add_index "games", ["home_team"], name: "index_games_on_home_team", using: :btree
+  add_index "games", ["home_team_id"], name: "index_games_on_home_team_id", using: :btree
   add_index "games", ["nba_game_id"], name: "index_games_on_nba_game_id", unique: true, using: :btree
 
   create_table "players", force: :cascade do |t|

@@ -7,15 +7,15 @@ class CreateGamesTable < ActiveRecord::Migration
       t.boolean         :overtime?, null: false
       t.boolean         :national_game?, null: false
       t.boolean         :TNT?, null: false
-      t.integer         :away_team, null: false
-      t.integer         :home_team, null: false
+      t.integer         :away_team_id, null: false
+      t.integer         :home_team_id, null: false
 
       t.timestamps
     end
 
     add_index :games, :date
     add_index :games, :nba_game_id, unique: true
-    add_index :games, :home_team
-    add_index :games, :away_team
+    add_index :games, :home_team_id
+    add_index :games, :away_team_id
   end
 end

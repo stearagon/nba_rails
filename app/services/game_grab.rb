@@ -1,15 +1,9 @@
-require 'http'
-require 'pg'
-require_relative './game.rb'
-
 class GameGrab
   def initialize(date)
     @date = date
   end
 
   def get_games
-    raise if @date.empty?
-
     games_json = HTTP.get(link_builder).parse['games']
 
     games_json.each do |game|
@@ -43,8 +37,8 @@ class GameGrab
     game_data[:overtime?] = game['ot'] > 0
     game_data[:national_game?] = game['broadcaster']['is_national']
     game_data[:TNT?] = game['broadcaster']['name'] == 'TNT'
-    game_data[:away_team] = game['teams'].first['id']
-    game_data[:home_team] = game['teams'].last['id']
+    game_data[:away_team_id] = game['teams'].first['id']
+    game_data[:home_team_id] = game['teams'].last['id']
     game_data
   end
 
