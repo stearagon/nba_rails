@@ -1,6 +1,6 @@
 class CreateGamesTable < ActiveRecord::Migration
   def change
-    create_table :games_tables do |t|
+    create_table :games do |t|
       t.string          :nba_game_id, null: false
       t.datetime        :date, null: false
       t.boolean         :completed?, null: false

@@ -1,6 +1,6 @@
 class CreateTeamsTable < ActiveRecord::Migration
   def change
-    create_table :teams_tables do |t|
+    create_table :teams do |t|
       t.integer :nba_team_id, null: false
       t.string :season, null: false
       t.string :city, null: false
