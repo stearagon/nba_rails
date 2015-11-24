@@ -15,6 +15,7 @@ group :development, :test do
   gem 'byebug'
   gem 'better_errors'
   gem 'pry-rails'
+  gem 'annotate'
 end
 
 group :development do
