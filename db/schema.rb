@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151124044355) do
+ActiveRecord::Schema.define(version: 20151124123532) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,6 +68,32 @@ ActiveRecord::Schema.define(version: 20151124044355) do
   end
 
   add_index "referees", ["nba_referee_id"], name: "index_referees_on_nba_referee_id", unique: true, using: :btree
+
+  create_table "stat_lines", force: :cascade do |t|
+    t.string   "nba_game_id",    null: false
+    t.integer  "nba_team_id",    null: false
+    t.integer  "nba_player_id",  null: false
+    t.string   "start_position", null: false
+    t.integer  "minutes"
+    t.integer  "fgm"
+    t.integer  "fga"
+    t.integer  "fg3m"
+    t.integer  "fg3a"
+    t.integer  "ftm"
+    t.integer  "fta"
+    t.integer  "oreb"
+    t.integer  "dreb"
+    t.integer  "ast"
+    t.integer  "stl"
+    t.integer  "blk"
+    t.integer  "to"
+    t.integer  "pf"
+    t.integer  "plus_minus"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "stat_lines", ["nba_game_id", "nba_team_id", "nba_player_id"], name: "stat_line_index", unique: true, using: :btree
 
   create_table "teams", force: :cascade do |t|
     t.integer  "nba_team_id",  null: false
