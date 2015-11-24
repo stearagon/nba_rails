@@ -35,6 +35,7 @@ class GameGrab
     game_data[:date] = date_time_format(@date)
     game_data[:completed?] = game['recap'] != ''
     game_data[:overtime?] = game['ot'] > 0
+    game_data[:quarters] = game['qts'].length
     game_data[:national_game?] = game['broadcaster']['is_national']
     game_data[:TNT?] = game['broadcaster']['name'] == 'TNT'
     game_data[:away_team_id] = game['teams'].first['id']
