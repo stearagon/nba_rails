@@ -21,4 +21,6 @@ class Game < ActiveRecord::Base
 
   has_many :game_referees, class_name: 'GameReferee', foreign_key: :game_id, primary_key: :nba_game_id
   has_many :referees, through: :game_referees, source: :referee
+
+  has_many :stat_lines, class_name: 'StatLine', foreign_key: :nba_game_id, primary_key: :nba_game_id
 end
