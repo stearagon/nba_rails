@@ -11,10 +11,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151124123532) do
+ActiveRecord::Schema.define(version: 20151202015028) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "advanced_stat_lines", force: :cascade do |t|
+    t.string   "nba_game_id",                     null: false
+    t.integer  "nba_team_id",                     null: false
+    t.integer  "nba_player_id",                   null: false
+    t.string   "start_position",                  null: false
+    t.integer  "minutes"
+    t.float    "offensive_rating"
+    t.float    "defensive_rating"
+    t.float    "assist_percentage"
+    t.float    "assist_to_turnover"
+    t.float    "assist_ratio"
+    t.float    "offensive_rebound_percentage"
+    t.float    "defensive_rebound_percentage"
+    t.float    "rebound_percentage"
+    t.float    "team_turnover_percentage"
+    t.float    "effective_field_goal_percentage"
+    t.float    "true_shooting_percentage"
+    t.float    "usage_percentage"
+    t.float    "pace"
+    t.float    "pie"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "advanced_stat_lines", ["nba_game_id", "nba_team_id", "nba_player_id"], name: "advanced_stat_line_index", unique: true, using: :btree
 
   create_table "game_referees", force: :cascade do |t|
     t.string   "game_id",    null: false
