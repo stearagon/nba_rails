@@ -17,7 +17,10 @@ class RefereeGrab
           Referee.create(referee_data)
         end
 
-        GameReferee.create(game_id: game.nba_game_id, referee_id: referee_data[:nba_referee_id])
+        new_game_referee = GameReferee.find_by(game_id: game.nba_game_id, referee_id: referee_data[:nba_referee_id])
+        if new_game_referee.nil?
+          GameReferee.create(game_id: game.nba_game_id, referee_id: referee_data[:nba_referee_id])
+        end
       end
     end
 

@@ -13,7 +13,13 @@ class StatLineGrab
 
       stat_line_json['resultSets'][0]['rowSet'].each do |stat_line|
         stat_data = grab_specific_stat_line_data(stat_line)
-        StatLine.create(stat_data)
+        new_stat_line = StatLine.find_by(nba_game_id: stat_data[:nba_game_id], nba_player_id: stat_data[:nba_player_id])
+
+        if new_stat_line
+            new_stat_line.update(stat_data)
+        else
+          StatLine.create(stat_data)
+        end
       end
     end
 
