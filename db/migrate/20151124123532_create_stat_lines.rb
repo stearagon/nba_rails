@@ -5,7 +5,7 @@ class CreateStatLines < ActiveRecord::Migration
       t.integer :nba_team_id, null: false
       t.integer :nba_player_id, null: false
       t.string :start_position, null: false
-      t.integer :minutes
+      t.float :minutes
       t.integer :fgm
       t.integer :fga
       t.integer :fg3m

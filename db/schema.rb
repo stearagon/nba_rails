@@ -21,7 +21,7 @@ ActiveRecord::Schema.define(version: 20151202015028) do
     t.integer  "nba_team_id",                     null: false
     t.integer  "nba_player_id",                   null: false
     t.string   "start_position",                  null: false
-    t.integer  "minutes"
+    t.float    "minutes"
     t.float    "offensive_rating"
     t.float    "defensive_rating"
     t.float    "assist_percentage"
@@ -100,7 +100,7 @@ ActiveRecord::Schema.define(version: 20151202015028) do
     t.integer  "nba_team_id",    null: false
     t.integer  "nba_player_id",  null: false
     t.string   "start_position", null: false
-    t.integer  "minutes"
+    t.float    "minutes"
     t.integer  "fgm"
     t.integer  "fga"
     t.integer  "fg3m"

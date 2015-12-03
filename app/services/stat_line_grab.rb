@@ -43,12 +43,14 @@ class StatLineGrab
 
   def grab_specific_stat_line_data(stats)
     stat_line_data = {}
+    split_time = stats[8].nil? ? [0,0] : stats[8].split(':')
+    adjusted_minutes = split_time[0].to_i + (split_time[1].to_f / 60)
 
     stat_line_data[:nba_game_id] = stats[0]
     stat_line_data[:nba_team_id] = stats[1]
     stat_line_data[:nba_player_id] = stats[4]
     stat_line_data[:start_position] = stats[6]
-    stat_line_data[:minutes] = stats[8]
+    stat_line_data[:minutes] = adjusted_minutes
     stat_line_data[:fgm] = stats[9]
     stat_line_data[:fga] = stats[10]
     stat_line_data[:fg3m] = stats[12]

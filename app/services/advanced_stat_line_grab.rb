@@ -43,12 +43,14 @@ class AdvancedStatLineGrab
 
   def grab_specific_advanced_stat_line_data(stats)
     advanced_stat_line_data = {}
+    split_time = stats[8].nil? ? [0,0] : stats[8].split(':')
+    adjusted_minutes = split_time[0].to_i + (split_time[1].to_f / 60)
 
     advanced_stat_line_data[:nba_game_id] = stats[0]
     advanced_stat_line_data[:nba_team_id] = stats[1]
     advanced_stat_line_data[:nba_player_id] = stats[4]
     advanced_stat_line_data[:start_position] = stats[6]
-    advanced_stat_line_data[:minutes] = stats[8]
+    advanced_stat_line_data[:minutes] = adjusted_minutes
     advanced_stat_line_data[:offensive_rating] = stats[9]
     advanced_stat_line_data[:defensive_rating] = stats[10]
     advanced_stat_line_data[:assist_percentage] = stats[12]
