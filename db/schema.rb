@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151202015028) do
+ActiveRecord::Schema.define(version: 20151203010132) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -134,5 +134,32 @@ ActiveRecord::Schema.define(version: 20151202015028) do
   end
 
   add_index "teams", ["nba_team_id"], name: "index_teams_on_nba_team_id", unique: true, using: :btree
+
+  create_table "tracking_stat_lines", force: :cascade do |t|
+    t.string   "nba_game_id"
+    t.integer  "nba_team_id"
+    t.integer  "nba_player_id"
+    t.string   "start_position"
+    t.float    "minutes"
+    t.float    "speed"
+    t.float    "distance"
+    t.integer  "offensive_rebound_chance"
+    t.integer  "defensive_rebound_chance"
+    t.integer  "rebound_chance"
+    t.integer  "touches"
+    t.integer  "secondary_assists"
+    t.integer  "free_throw_assists"
+    t.integer  "passes"
+    t.integer  "contested_field_goals_made"
+    t.integer  "contested_field_goals_attemtped"
+    t.integer  "uncontested_field_goals_made"
+    t.integer  "uncontested_field_goals_attemtped"
+    t.integer  "defending_field_goals_made"
+    t.integer  "defending_field_goals_attemtped"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "tracking_stat_lines", ["nba_game_id", "nba_team_id", "nba_player_id"], name: "tracking_stat_line_index", unique: true, using: :btree
 
 end
