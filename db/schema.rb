@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151203010132) do
+ActiveRecord::Schema.define(version: 20151204130240) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -94,6 +94,31 @@ ActiveRecord::Schema.define(version: 20151203010132) do
   end
 
   add_index "referees", ["nba_referee_id"], name: "index_referees_on_nba_referee_id", unique: true, using: :btree
+
+  create_table "shot_charts", force: :cascade do |t|
+    t.integer "nba_game_id",   null: false
+    t.string  "nba_grid_type", null: false
+    t.integer "nba_player_id", null: false
+    t.integer "nba_team_id",   null: false
+    t.float   "period",        null: false
+    t.float   "minutes_left",  null: false
+    t.float   "seconds_left",  null: false
+    t.string  "event_type",    null: false
+    t.string  "action_type",   null: false
+    t.string  "shot_type",     null: false
+    t.string  "zone_basic",    null: false
+    t.string  "zone_area",     null: false
+    t.string  "zone_range",    null: false
+    t.float   "distance",      null: false
+    t.float   "location_x",    null: false
+    t.float   "location_y",    null: false
+    t.float   "made_shot?",    null: false
+  end
+
+  add_index "shot_charts", ["nba_game_id"], name: "index_shot_charts_on_nba_game_id", using: :btree
+  add_index "shot_charts", ["nba_player_id", "nba_game_id", "minutes_left", "period", "seconds_left"], name: "shot_chart_data_index", unique: true, using: :btree
+  add_index "shot_charts", ["nba_player_id"], name: "index_shot_charts_on_nba_player_id", using: :btree
+  add_index "shot_charts", ["nba_team_id"], name: "index_shot_charts_on_nba_team_id", using: :btree
 
   create_table "stat_lines", force: :cascade do |t|
     t.string   "nba_game_id",    null: false

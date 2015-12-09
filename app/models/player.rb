@@ -15,7 +15,40 @@
 #
 
 class Player < ActiveRecord::Base
-  belongs_to :team, class_name: 'Team', foreign_key: :nba_team_id, primary_key: :nba_team_id
+  belongs_to(
+    :team,
+    class_name: 'Team',
+    foreign_key: :nba_team_id,
+    primary_key: :nba_team_id
+  )
 
-  has_many :stat_lines, class_name: 'StatLine', foreign_key: :nba_player_id, primary_key: :nba_player_id
+  has_many(
+    :stat_lines,
+    class_name: 'StatLine',
+    foreign_key: :nba_player_id,
+    primary_key: :nba_player_id
+  )
+
+  has_many :games, through: :stat_lines, source: :game
+
+  has_many(
+    :advanced_stat_lines,
+    class_name: 'AdvancedStatLine',
+    foreign_key: :nba_player_id,
+    primary_key: :nba_player_id
+  )
+
+  has_many(
+    :tracking_stat_lines,
+    class_name: 'TrackingStatLine',
+    foreign_key: :nba_player_id,
+    primary_key: :nba_player_id
+  )
+
+  has_many(
+    :shot_charts,
+    class_name: 'ShotChart',
+    foreign_key: :nba_player_id,
+    primary_key: :nba_player_id
+  )
 end

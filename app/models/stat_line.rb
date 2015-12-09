@@ -7,7 +7,7 @@
 #  nba_team_id    :integer          not null
 #  nba_player_id  :integer          not null
 #  start_position :string           not null
-#  minutes        :integer
+#  minutes        :float
 #  fgm            :integer
 #  fga            :integer
 #  fg3m           :integer

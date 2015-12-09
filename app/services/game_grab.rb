@@ -26,6 +26,7 @@ class GameGrab
     link += "/gameline/"
     link += @date
     link += "/games.json"
+    
     link
   end
 
