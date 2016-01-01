@@ -17,7 +17,7 @@
 #
 
 class Game < ActiveRecord::Base
-  attr_reader :quarters
+  attr_accessor :quarters
 
   has_one :home_team, class_name: 'Team', foreign_key: :nba_team_id, primary_key: :home_team_id
   has_one :away_team, class_name: 'Team', foreign_key: :nba_team_id, primary_key: :away_team_id
@@ -26,10 +26,20 @@ class Game < ActiveRecord::Base
   has_many :referees, through: :game_referees, source: :referee
 
   has_many :stat_lines, class_name: 'StatLine', foreign_key: :nba_game_id, primary_key: :nba_game_id
+  has_many :tracking_stat_lines, class_name: 'TrackingStatLine', foreign_key: :nba_game_id, primary_key: :nba_game_id
+  has_many :advanced_stat_lines, class_name: 'AdvancedStatLine', foreign_key: :nba_game_id, primary_key: :nba_game_id
 
   has_many :played_stat_lines, -> (object){ where("minutes > ?", 0)}, class_name: 'StatLine', foreign_key: :nba_game_id, primary_key: :nba_game_id
   has_many :played_players, through: :played_stat_lines, source: :player
 
   has_many :stat_lines, class_name: 'StatLine', foreign_key: :nba_game_id, primary_key: :nba_game_id
   has_many :dressed_players, through: :stat_lines, source: :player
+
+  def minutes
+    if self[:quarters] > 4
+      return ((self[:quarters] - 4) * 5) + 48
+    end
+
+    return 48
+  end
 end

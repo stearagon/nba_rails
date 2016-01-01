@@ -1,0 +1,26 @@
+<%= form_tag("/", method: "get") do %>
+<label>Teams Playing on:
+  <%= date_field(:game_dates, :begin_date, value: @game_start_date) %>
+  <%= date_field(:game_dates, :end_date, value: @game_end_date) %>
+</label>
+
+<label>Games Between:
+  <%= date_field(:history_dates, :begin_date, value: @history_start_date) %>
+  <%= date_field(:history_dates, :end_date, value: @history_end_date) %>
+</label>
+
+  <%= submit_tag("Filter Games") %>
+<% end %>
+
+  <% if !@games.nil?%>
+  <ul class="stats">
+    Averages - Possessions: <%= @league_averages.round(3) %>
+    <% @games.each do |game| %>
+      <li>Date: <%= game.date.to_date %></li>
+      <ul>
+        <li>Away Team: <%= game.away_team.mascot %> Avg Poss: <%= @team_possessions[game.away_team.nba_team_id].round(3) %></li>
+        <li>Home Team: <%= game.home_team.mascot %> Avg Poss: <%= @team_possessions[game.home_team.nba_team_id].round(3) %></li>
+      </ul>
+    <% end %>
+  </ul>
+  <% end %>
