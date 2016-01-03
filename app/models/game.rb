@@ -17,8 +17,6 @@
 #
 
 class Game < ActiveRecord::Base
-  attr_accessor :quarters
-
   has_one :home_team, class_name: 'Team', foreign_key: :nba_team_id, primary_key: :home_team_id
   has_one :away_team, class_name: 'Team', foreign_key: :nba_team_id, primary_key: :away_team_id
 
@@ -41,5 +39,41 @@ class Game < ActiveRecord::Base
     end
 
     return 48
+  end
+
+  def rests
+    rests = {}
+    previous_home_game = home_team.games.select { |game| game.date < self.date }.max
+    previous_away_game = away_team.games.select { |game| game.date < self.date }.max
+
+    if !previous_home_game.nil?
+      rests[:home_team] = ((self.date - previous_home_game.date) / 86400).to_i
+    else
+      rests[:home_team] = 5
+    end
+
+    if !previous_away_game.nil?
+      rests[:away_team] = ((self.date - previous_away_game.date) / 86400).to_i
+    else
+      rests[:away_team] = 5
+    end
+
+    rests
+  end
+
+  def games_in_5_days
+    games_in_5_days = {}
+    games_in_5_days[:home_team] = home_team.games.select { |game| game.date < self.date  && game.date > (self.date - (86400 * 5)) }.length
+    games_in_5_days[:away_team] = away_team.games.select { |game| game.date < self.date  && game.date > (self.date - (86400 * 5)) }.length
+
+    games_in_5_days
+  end
+
+  def games_in_10_days
+    games_in_10_days = {}
+    games_in_10_days[:home_team] = home_team.games.select { |game| game.date < self.date  && game.date > (self.date - (86400 * 10)) }.length
+    games_in_10_days[:away_team] = away_team.games.select { |game| game.date < self.date  && game.date > (self.date - (86400 * 10)) }.length
+
+    games_in_10_days
   end
 end

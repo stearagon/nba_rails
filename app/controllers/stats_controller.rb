@@ -12,9 +12,9 @@ class StatsController < ApplicationController
                 start_date: @history_start_date,
                 end_date: @history_end_date})
 
-      @team_possessions = team_stats.team_possessions
-      @league_averages = team_stats.league_averages
-
+      @team_possessions = team_stats.possessions_per_48
+      @points_per_possession = team_stats.points_per_possession
+      @points_per_possession_allowed = team_stats.points_per_possession_allowed
     end
   end
 end

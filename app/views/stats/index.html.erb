@@ -12,15 +12,60 @@
   <%= submit_tag("Filter Games") %>
 <% end %>
 
+<table class="stats">
+  <tr>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th colspan="2">Games Played<th>
+    <th colspan="3">Averages<th>
+  </tr>
+  <tr>
+    <th>Team</th>
+    <th>H/A</th>
+    <th>Rest</th>
+    <th>5 days</th>
+    <th>10 days</th>
+    <th>Poss per 48</th>
+    <th>Pts per Poss</th>
+    <th>PPP Allowed</th>
+  </tr>
+
+  <tr>
+    <td>League Averages</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td><%= (@team_possessions.values.inject(:+) / @team_possessions.length).round(1) %></td>
+    <td><%= (@points_per_possession.values.inject(:+) / @points_per_possession.length).round(3) %></td>
+    <td><%= (@points_per_possession_allowed.values.inject(:+) / @points_per_possession_allowed.length).round(3) %></td>
+  </tr>
+
   <% if !@games.nil?%>
-  <ul class="stats">
-    Averages - Possessions: <%= @league_averages.round(3) %>
     <% @games.each do |game| %>
-      <li>Date: <%= game.date.to_date %></li>
-      <ul>
-        <li>Away Team: <%= game.away_team.mascot %> Avg Poss: <%= @team_possessions[game.away_team.nba_team_id].round(3) %></li>
-        <li>Home Team: <%= game.home_team.mascot %> Avg Poss: <%= @team_possessions[game.home_team.nba_team_id].round(3) %></li>
-      </ul>
+      <tr><td><%= game.date.to_date %> - <%= game.away_team.mascot %> @ <%= game.home_team.mascot %></td></tr>
+      <tr>
+        <td><%= game.away_team.mascot %></td>
+        <td>A</td>
+        <td><%= game.rests[:away_team] %></td>
+        <td><%= game.games_in_5_days[:away_team] %></td>
+        <td><%= game.games_in_10_days[:away_team] %></td>
+        <td><%= @team_possessions[game.away_team.nba_team_id].round(1) %></td>
+        <td><%= @points_per_possession[game.away_team.nba_team_id].round(3) %></td>
+        <td><%= @points_per_possession_allowed[game.away_team.nba_team_id].round(3) %></td>
+      </tr>
+
+      <tr>
+        <td><%= game.home_team.mascot %></td>
+        <td>H</td>
+        <td><%= game.rests[:home_team] %></td>
+        <td><%= game.games_in_5_days[:home_team] %></td>
+        <td><%= game.games_in_10_days[:home_team] %></td>
+        <td><%= @team_possessions[game.home_team.nba_team_id].round(1) %></td>
+        <td><%= @points_per_possession[game.home_team.nba_team_id].round(3) %></td>
+        <td><%= @points_per_possession_allowed[game.home_team.nba_team_id].round(3) %></td>
+      </tr>
     <% end %>
-  </ul>
   <% end %>
+</table>

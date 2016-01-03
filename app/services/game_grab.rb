@@ -1,6 +1,6 @@
 class GameGrab
   def initialize(date, season_start_year)
-    @date = format_date(date)
+    @date = date
     @season_start_year = season_start_year
   end
 
@@ -47,16 +47,5 @@ class GameGrab
 
   def date_time_format(date)
     "#{date[0..3]}-#{date[4..5]}-#{date[-2..-1]}"
-  end
-
-  private
-
-  def format_date(date)
-    if date.length < 8
-      new_date = date[0..3] + "0" + date[4..6]
-    else
-      new_date = date
-    end
-    new_date
   end
 end
