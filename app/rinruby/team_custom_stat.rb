@@ -1,28 +1,49 @@
-class TeamStatsAnalysis
-  attr_reader :start_date, :end_date, :league_averages, :game_possessions,
-                :game_points, :team_possessions, :possessions_per_48, :points_per_possession,
-                :team_points_allowed, :points_per_possession_allowed
+class TeamCustomStat
+  attr_reader :start_date, :end_date, :team_id, :games_filtered
+  attr_accessor :games_filtered
 
-  def initialize(start_date:, end_date:)
+  def initialize(start_date:, end_date:, team_id:)
     @start_date = start_date
     @end_date = end_date
-    @teams = Team.all
-    @game_possessions = game_by_game_possessions
-    @game_points = game_by_game_points
-    @team_points = team_total_points
-    @team_points_allowed = team_total_points_allowed
-    @team_possessions = team_total_possessions
-    @team_minutes = team_total_minutes
-    @points_per_possession = team_points_per_possession
-    @points_per_possession_allowed = team_points_per_possession_allowed
-    @possessions_per_48 = team_possessions_per_48
+    @team_id = team_id
+    @games = games
+  end
+
+  def games
+    Game.includes(:stat_lines).where("(home_team_id = ? OR away_team_id = ?) AND (date BETWEEN ? AND ?)", @team_id, @team_id, @start_date, @end_date)
+  end
+
+  def home_or_away_games(location)
+    location_text = location == "home" ? "home_team_id" : "away_team_id"
+
+    @games_filtered = @games.select { |game| game.send(location_text) == @team_id}
+  end
+
+  def days_rest_games(rest)
+    home_games = home_or_away_games("home").select { |game| game.rests[:home_team] == rest }
+    away_games = home_or_away_games("away").select { |game| game.rests[:away_team] == rest }
+
+    @games_filtered = home_games + away_games
+  end
+
+  def games_played_in_5(days)
+    home_games = home_or_away_games("home").select { |game| game.games_in_5_days[:home_team] == days }
+    away_games = home_or_away_games("away").select { |game| game.games_in_5_days[:away_team] == days }
+
+    @games_filtered = home_games + away_games
+  end
+
+  def games_played_in_10(days)
+    home_games = home_or_away_games("home").select { |game| game.games_in_10_days[:home_team] == days }
+    away_games = home_or_away_games("away").select { |game| game.games_in_10_days[:away_team] == days }
+
+    @games_filtered = home_games + away_games
   end
 
   def game_stats
     game_stats = {}
-    games = Game.includes(:played_stat_lines).where("date BETWEEN ? AND ?", @start_date, @end_date)
 
-    games.each do |game|
+    @games_filtered.each do |game|
       game_stats["#{game.nba_game_id}"] = Hash.new
       game_stats["#{game.nba_game_id}"]["home"] = Hash.new(0)
       game_stats["#{game.nba_game_id}"]["away"] = Hash.new(0)
@@ -79,105 +100,55 @@ class TeamStatsAnalysis
   end
 
   def team_total_possessions
-    team_total_possessions = {}
-
-    @teams.each do |team|
-      games = team.games.select { |game| game.date >= @start_date && game.date <= @end_date }
-
-      if !games.empty?
-        total_possessions = games.map do |game|
-          game_possessions[game.nba_game_id].values.inject(:+) / 2.0
-        end.inject(:+)
-
-        team_total_possessions[team.nba_team_id] = total_possessions
-      end
+    if !@games_filtered.empty?
+      total_possessions = @games_filtered.map do |game|
+        game_by_game_possessions[game.nba_game_id].values.inject(:+) / 2.0
+      end.inject(:+)
     end
 
-    team_total_possessions
+    total_possessions
   end
 
   def team_total_points
-    team_total_points = {}
-
-    @teams.each do |team|
-      games = team.games.select { |game| game.date >= @start_date && game.date <= @end_date }
-
-      if !games.empty?
-        total_points = games.map do |game|
-          game_points[game.nba_game_id][team.nba_team_id]
-        end.inject(:+)
-
-        team_total_points[team.nba_team_id] = total_points
-      end
+    if !@games_filtered.empty?
+      total_points = @games_filtered.map do |game|
+        game_by_game_points[game.nba_game_id][@team_id]
+      end.inject(:+)
     end
 
-    team_total_points
+    total_points
   end
 
   def team_total_points_allowed
-    team_total_points_allowed = {}
-
-    @teams.each do |team|
-      games = team.games.select { |game| game.date >= @start_date && game.date <= @end_date }
-
-      if !games.empty?
-        total_points_allowed = games.map do |game|
-          game_points[game.nba_game_id].values.inject(:+) - game_points[game.nba_game_id][team.nba_team_id]
-        end.inject(:+)
-
-        team_total_points_allowed[team.nba_team_id] = total_points_allowed
-      end
+    if !@games_filtered.empty?
+      total_points_allowed = @games_filtered.map do |game|
+        game_by_game_points[game.nba_game_id].values.inject(:+) - game_by_game_points[game.nba_game_id][@team_id]
+      end.inject(:+)
     end
 
-    team_total_points_allowed
+    total_points_allowed
   end
 
   def team_total_minutes
-    team_total_minutes = {}
-
-    @teams.each do |team|
-      games = team.games.select { |game| game.date >= @start_date && game.date <= @end_date }
-
-      if !games.empty?
-        total_minutes = games.map do |game|
-          game.minutes
-        end.inject(:+)
-
-        team_total_minutes[team.nba_team_id] = total_minutes
-      end
+    if !@games_filtered.empty?
+      total_minutes = @games_filtered.map do |game|
+        game.minutes
+      end.inject(:+)
     end
 
-    team_total_minutes
+    total_minutes
   end
 
   def team_points_per_possession
-    team_points_per_possession = Hash.new(nil)
-
-    @team_points.each do |k,v|
-      team_points_per_possession[k] = (v / @team_possessions[k].to_f)
-    end
-
-    team_points_per_possession
+    (team_total_points / team_total_possessions.to_f) if !team_total_points.nil? && !team_total_possessions.nil?
   end
 
   def team_points_per_possession_allowed
-    team_points_per_possession_allowed = Hash.new(nil)
-
-    @team_points_allowed.each do |k,v|
-      team_points_per_possession_allowed[k] = (v / @team_possessions[k].to_f)
-    end
-
-    team_points_per_possession_allowed
+    (team_total_points_allowed / team_total_possessions.to_f) if !team_total_points_allowed.nil? && !team_total_possessions.nil?
   end
 
-  def team_possessions_per_48
-    team_possessions_per_48 = Hash.new(nil)
-
-    @team_possessions.each do |k,v|
-      team_possessions_per_48[k] = (v / @team_minutes[k].to_f) * 48
-    end
-
-    team_possessions_per_48
+  def team_possessions_per_minute
+    (team_total_possessions / team_total_minutes.to_f) if !team_total_possessions.nil? && !team_total_minutes.nil?
   end
 
   def possessions_formula(values)

@@ -30,8 +30,15 @@ class Game < ActiveRecord::Base
   has_many :played_stat_lines, -> (object){ where("minutes > ?", 0)}, class_name: 'StatLine', foreign_key: :nba_game_id, primary_key: :nba_game_id
   has_many :played_players, through: :played_stat_lines, source: :player
 
-  has_many :stat_lines, class_name: 'StatLine', foreign_key: :nba_game_id, primary_key: :nba_game_id
   has_many :dressed_players, through: :stat_lines, source: :player
+
+  def home_team_stat_lines
+    self.stat_lines.select { |stat_lines| stat_lines.nba_team_id == self.home_team_id }
+  end
+
+  def away_team_stat_lines
+    self.stat_lines.select { |stat_lines| stat_lines.nba_team_id == self.away_team_id }
+  end
 
   def minutes
     if self[:quarters] > 4
@@ -43,8 +50,9 @@ class Game < ActiveRecord::Base
 
   def rests
     rests = {}
-    previous_home_game = home_team.games.select { |game| game.date < self.date }.max
-    previous_away_game = away_team.games.select { |game| game.date < self.date }.max
+
+    previous_home_game = home_team.games.select { |game| game.date < self.date }.sort { |x, y| x.date <=> y.date }.last
+    previous_away_game = away_team.games.select { |game| game.date < self.date }.sort { |x, y| x.date <=> y.date }.last
 
     if !previous_home_game.nil?
       rests[:home_team] = ((self.date - previous_home_game.date) / 86400).to_i

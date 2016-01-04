@@ -12,6 +12,7 @@
   <%= submit_tag("Filter Games") %>
 <% end %>
 
+<% if !@games.nil?%>
 <table class="stats">
   <tr>
     <th></th>
@@ -19,6 +20,9 @@
     <th></th>
     <th colspan="2">Games Played<th>
     <th colspan="3">Averages<th>
+    <th colspan="4">Possessions<th>
+    <th colspan="4">Points<th>
+    <th colspan="4">Points Allowed<th>
   </tr>
   <tr>
     <th>Team</th>
@@ -26,9 +30,21 @@
     <th>Rest</th>
     <th>5 days</th>
     <th>10 days</th>
-    <th>Poss per 48</th>
-    <th>Pts per Poss</th>
-    <th>PPP Allowed</th>
+    <th>Poss/min</th>
+    <th>Pts/Poss</th>
+    <th>PPP Agst</th>
+    <th>H/A</th>
+    <th>Rest</th>
+    <th>5 d</th>
+    <th>10 d</th>
+    <th>H/A</th>
+    <th>Rest</th>
+    <th>5 d</th>
+    <th>10 d</th>
+    <th>H/A</th>
+    <th>Rest</th>
+    <th>5 d</th>
+    <th>10 d</th>
   </tr>
 
   <tr>
@@ -37,12 +53,11 @@
     <td></td>
     <td></td>
     <td></td>
-    <td><%= (@team_possessions.values.inject(:+) / @team_possessions.length).round(1) %></td>
+    <td><%= (@team_possessions.values.inject(:+) / @team_possessions.length / 48).round(2) %></td>
     <td><%= (@points_per_possession.values.inject(:+) / @points_per_possession.length).round(3) %></td>
     <td><%= (@points_per_possession_allowed.values.inject(:+) / @points_per_possession_allowed.length).round(3) %></td>
   </tr>
 
-  <% if !@games.nil?%>
     <% @games.each do |game| %>
       <tr><td><%= game.date.to_date %> - <%= game.away_team.mascot %> @ <%= game.home_team.mascot %></td></tr>
       <tr>
@@ -51,9 +66,37 @@
         <td><%= game.rests[:away_team] %></td>
         <td><%= game.games_in_5_days[:away_team] %></td>
         <td><%= game.games_in_10_days[:away_team] %></td>
-        <td><%= @team_possessions[game.away_team.nba_team_id].round(1) %></td>
+        <td><%= (@team_possessions[game.away_team.nba_team_id] / 48).round(2) %></td>
         <td><%= @points_per_possession[game.away_team.nba_team_id].round(3) %></td>
         <td><%= @points_per_possession_allowed[game.away_team.nba_team_id].round(3) %></td>
+
+        <% stats = TeamCustomStat.new(start_date: @history_start_date, end_date: @history_end_date, team_id: game.away_team.nba_team_id) %>
+        <% stats.home_or_away_games("away") %>
+        <td><%= stats.team_possessions_per_minute.round(2) %></td>
+        <% stats.days_rest_games(game.rests[:away_team]) %>
+        <td><%= stats.team_possessions_per_minute.round(2) if !stats.team_possessions_per_minute.nil? %></td>
+        <% stats.games_played_in_5(game.games_in_5_days[:away_team]) %>
+        <td><%= stats.team_possessions_per_minute.round(2) if !stats.team_possessions_per_minute.nil? %></td>
+        <% stats.games_played_in_10(game.games_in_10_days[:away_team]) %>
+        <td><%= stats.team_possessions_per_minute.round(2) if !stats.team_possessions_per_minute.nil? %></td>
+
+        <% stats.home_or_away_games("away") %>
+        <td><%= stats.team_points_per_possession.round(2) %></td>
+        <% stats.days_rest_games(game.rests[:away_team]) %>
+        <td><%= stats.team_points_per_possession.round(2) if !stats.team_points_per_possession.nil? %></td>
+        <% stats.games_played_in_5(game.games_in_5_days[:away_team]) %>
+        <td><%= stats.team_points_per_possession.round(2) if !stats.team_points_per_possession.nil? %></td>
+        <% stats.games_played_in_10(game.games_in_10_days[:away_team]) %>
+        <td><%= stats.team_points_per_possession.round(2) if !stats.team_points_per_possession.nil? %></td>
+
+        <% stats.home_or_away_games("away") %>
+        <td><%= stats.team_points_per_possession_allowed.round(2) %></td>
+        <% stats.days_rest_games(game.rests[:away_team]) %>
+        <td><%= stats.team_points_per_possession_allowed.round(2) if !stats.team_points_per_possession_allowed.nil? %></td>
+        <% stats.games_played_in_5(game.games_in_5_days[:away_team]) %>
+        <td><%= stats.team_points_per_possession_allowed.round(2) if !stats.team_points_per_possession_allowed.nil? %></td>
+        <% stats.games_played_in_10(game.games_in_10_days[:away_team]) %>
+        <td><%= stats.team_points_per_possession_allowed.round(2) if !stats.team_points_per_possession_allowed.nil? %></td>
       </tr>
 
       <tr>
@@ -62,9 +105,36 @@
         <td><%= game.rests[:home_team] %></td>
         <td><%= game.games_in_5_days[:home_team] %></td>
         <td><%= game.games_in_10_days[:home_team] %></td>
-        <td><%= @team_possessions[game.home_team.nba_team_id].round(1) %></td>
+        <td><%= (@team_possessions[game.home_team.nba_team_id] / 48).round(2) %></td>
         <td><%= @points_per_possession[game.home_team.nba_team_id].round(3) %></td>
         <td><%= @points_per_possession_allowed[game.home_team.nba_team_id].round(3) %></td>
+        <% stats = TeamCustomStat.new(start_date: @history_start_date, end_date: @history_end_date, team_id: game.home_team.nba_team_id) %>
+        <% stats.home_or_away_games("home") %>
+        <td><%= stats.team_possessions_per_minute.round(2) if !stats.team_possessions_per_minute.nil? %></td>
+        <% stats.days_rest_games(game.rests[:home_team]) %>
+        <td><%= stats.team_possessions_per_minute.round(2) if !stats.team_possessions_per_minute.nil? %></td>
+        <% stats.games_played_in_5(game.games_in_5_days[:home_team]) %>
+        <td><%= stats.team_possessions_per_minute.round(2) if !stats.team_possessions_per_minute.nil? %></td>
+        <% stats.games_played_in_10(game.games_in_10_days[:home_team]) %>
+        <td><%= stats.team_possessions_per_minute.round(2) if !stats.team_possessions_per_minute.nil? %></td>
+
+        <% stats.home_or_away_games("home") %>
+        <td><%= stats.team_points_per_possession.round(2) %></td>
+        <% stats.days_rest_games(game.rests[:home_team]) %>
+        <td><%= stats.team_points_per_possession.round(2) if !stats.team_points_per_possession.nil? %></td>
+        <% stats.games_played_in_5(game.games_in_5_days[:home_team]) %>
+        <td><%= stats.team_points_per_possession.round(2) if !stats.team_points_per_possession.nil? %></td>
+        <% stats.games_played_in_10(game.games_in_10_days[:home_team]) %>
+        <td><%= stats.team_points_per_possession.round(2) if !stats.team_points_per_possession.nil? %></td>
+
+        <% stats.home_or_away_games("home") %>
+        <td><%= stats.team_points_per_possession_allowed.round(2) %></td>
+        <% stats.days_rest_games(game.rests[:home_team]) %>
+        <td><%= stats.team_points_per_possession_allowed.round(2) if !stats.team_points_per_possession_allowed.nil? %></td>
+        <% stats.games_played_in_5(game.games_in_5_days[:home_team]) %>
+        <td><%= stats.team_points_per_possession_allowed.round(2) if !stats.team_points_per_possession_allowed.nil? %></td>
+        <% stats.games_played_in_10(game.games_in_10_days[:home_team]) %>
+        <td><%= stats.team_points_per_possession_allowed.round(2) if !stats.team_points_per_possession_allowed.nil? %></td>
       </tr>
     <% end %>
   <% end %>
