@@ -71,16 +71,16 @@ class Game < ActiveRecord::Base
 
   def games_in_5_days
     games_in_5_days = {}
-    games_in_5_days[:home_team] = home_team.games.select { |game| game.date < self.date  && game.date > (self.date - (86400 * 5)) }.length
-    games_in_5_days[:away_team] = away_team.games.select { |game| game.date < self.date  && game.date > (self.date - (86400 * 5)) }.length
+    games_in_5_days[:home_team] = home_team.games.select { |game| game.date < self.date  && game.date >= (self.date - (86400 * 5)) }.length
+    games_in_5_days[:away_team] = away_team.games.select { |game| game.date < self.date  && game.date >= (self.date - (86400 * 5)) }.length
 
     games_in_5_days
   end
 
   def games_in_10_days
     games_in_10_days = {}
-    games_in_10_days[:home_team] = home_team.games.select { |game| game.date < self.date  && game.date > (self.date - (86400 * 10)) }.length
-    games_in_10_days[:away_team] = away_team.games.select { |game| game.date < self.date  && game.date > (self.date - (86400 * 10)) }.length
+    games_in_10_days[:home_team] = home_team.games.select { |game| game.date < self.date  && game.date >= (self.date - (86400 * 10)) }.length
+    games_in_10_days[:away_team] = away_team.games.select { |game| game.date < self.date  && game.date >= (self.date - (86400 * 10)) }.length
 
     games_in_10_days
   end

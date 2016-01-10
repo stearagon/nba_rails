@@ -1,16 +1,18 @@
 class TeamCustomStat
-  attr_reader :start_date, :end_date, :team_id, :games_filtered
-  attr_accessor :games_filtered
+  attr_reader :start_date, :end_date, :team_id
+  attr_accessor :games_filtered, :game_stats, :games_filtered, :games
 
   def initialize(start_date:, end_date:, team_id:)
     @start_date = start_date
     @end_date = end_date
     @team_id = team_id
-    @games = games
+    self.games
+    self.game_stats
   end
 
   def games
-    Game.includes(:stat_lines).where("(home_team_id = ? OR away_team_id = ?) AND (date BETWEEN ? AND ?)", @team_id, @team_id, @start_date, @end_date)
+    @games = Game.includes(:stat_lines).where("(home_team_id = ? OR away_team_id = ?) AND (date BETWEEN ? AND ?)", @team_id, @team_id, @start_date, @end_date)
+    @games_filtered = @games
   end
 
   def home_or_away_games(location)
@@ -58,6 +60,7 @@ class TeamCustomStat
         game_stats["#{stat_lines.nba_game_id}"]["home"]["oreb"] += stat_lines.oreb if stat_lines.nba_team_id == game.home_team_id && !stat_lines.oreb.nil?
         game_stats["#{stat_lines.nba_game_id}"]["home"]["dreb"] += stat_lines.dreb if stat_lines.nba_team_id == game.home_team_id && !stat_lines.dreb.nil?
         game_stats["#{stat_lines.nba_game_id}"]["home"]["to"] += stat_lines.to if stat_lines.nba_team_id == game.home_team_id && !stat_lines.to.nil?
+        game_stats["#{stat_lines.nba_game_id}"][:home_team_id] = game.home_team_id
 
         game_stats["#{stat_lines.nba_game_id}"]["away"]["fga"] += stat_lines.fga if stat_lines.nba_team_id == game.away_team_id && !stat_lines.fga.nil?
         game_stats["#{stat_lines.nba_game_id}"]["away"]["fgm"] += stat_lines.fgm if stat_lines.nba_team_id == game.away_team_id && !stat_lines.fgm.nil?
@@ -68,20 +71,20 @@ class TeamCustomStat
         game_stats["#{stat_lines.nba_game_id}"]["away"]["oreb"] += stat_lines.oreb if stat_lines.nba_team_id == game.away_team_id && !stat_lines.oreb.nil?
         game_stats["#{stat_lines.nba_game_id}"]["away"]["dreb"] += stat_lines.dreb if stat_lines.nba_team_id == game.away_team_id && !stat_lines.dreb.nil?
         game_stats["#{stat_lines.nba_game_id}"]["away"]["to"] += stat_lines.to if stat_lines.nba_team_id == game.away_team_id && !stat_lines.to.nil?
+        game_stats["#{stat_lines.nba_game_id}"][:away_team_id] = game.away_team_id
       end
     end
 
-    game_stats
+    @game_stats = game_stats
   end
 
   def game_by_game_possessions
     game_by_game_possessions = {}
 
-    self.game_stats.each do |k,v|
-      game = Game.includes(:home_team, :away_team).find_by(nba_game_id: k)
+    @game_stats.each do |k,v|
       game_possessions = possessions_formula(v)
-      game_by_game_possessions[k] = { game.home_team[:nba_team_id] => game_possessions[:home],
-                                        game.away_team[:nba_team_id] => game_possessions[:away]}
+      game_by_game_possessions[k] = { v[:home_team_id] => game_possessions[:home],
+                                        v[:away_team_id] => game_possessions[:away]}
     end
 
     game_by_game_possessions
@@ -90,10 +93,9 @@ class TeamCustomStat
   def game_by_game_points
     game_by_game_points = {}
 
-    self.game_stats.each do |k,v|
-      game = Game.includes(:home_team, :away_team).find_by(nba_game_id: k)
-      game_by_game_points[k] = { game.home_team[:nba_team_id] => points_formula(v["home"]),
-                                  game.away_team[:nba_team_id] => points_formula(v["away"])}
+    @game_stats.each do |k,v|
+      game_by_game_points[k] = { v[:home_team_id] => points_formula(v["home"]),
+                                  v[:away_team_id] => points_formula(v["away"])}
     end
 
     game_by_game_points
