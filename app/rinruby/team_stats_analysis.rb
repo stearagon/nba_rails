@@ -180,6 +180,8 @@ class TeamStatsAnalysis
     team_possessions_per_48
   end
 
+  private
+
   def possessions_formula(values)
     home_possessions = values["home"]["fga"] +
                           (0.40 * values["home"]["fta"]) -

@@ -1,0 +1,71 @@
+def one_digit_day(digit)
+  digit = "0" + digit if digit.length < 2
+  digit
+end
+
+dates = (Date.new(2016,1,18)..Date.new(2016,1,18)).to_a
+
+formatted_dates = []
+
+dates.each do |date|
+  month = date.month < 10 ? "0" + date.month.to_s : date.month.to_s
+  formatted_dates << (date.year.to_s + month + one_digit_day(date.day.to_s)).to_s
+end
+
+season_start_year = "2015"
+
+formatted_dates.each do |date|
+  GameGrab.new(date, season_start_year).get_games
+end
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+  def one_digit_day(digit)
+    digit = "0" + digit if digit.length < 2
+    digit
+  end
+
+  dates = (Date.new(2016,1,18)..Date.new(2016,1,18)).to_a
+
+  formatted_dates = []
+
+  dates.each do |date|
+    month = date.month < 10 ? "0" + date.month.to_s : date.month.to_s
+    formatted_dates << (date.year.to_s + month + one_digit_day(date.day.to_s)).to_s
+  end
+
+  formatted_dates.each do |date|
+    RefereeGrab.new(date).get_referees
+  end
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+def one_digit_day(digit)
+  digit = "0" + digit if digit.length < 2
+  digit
+end
+
+dates = (Date.new(2016,1,18)..Date.new(2016,1,18)).to_a
+
+formatted_dates = []
+
+dates.each do |date|
+  month = date.month < 10 ? "0" + date.month.to_s : date.month.to_s
+  formatted_dates << (date.year.to_s + month + one_digit_day(date.day.to_s)).to_i
+end
+
+formatted_dates.each do |date|
+  AdvancedStatLineGrab.new(date, '2015-16', 'Regular+Season').get_advanced_stat_lines
+end
+
+formatted_dates.each do |date|
+  TrackingStatLineGrab.new(date, '2015-16', 'Regular+Season').get_tracking_stat_lines
+end
+
+formatted_dates.each do |date|
+  StatLineGrab.new(date, '2015-16', 'Regular+Season').get_stat_lines
+end
+
+formatted_dates.each do |date|
+  ShotChartGrab.new(date, '2015-16', 'Regular+Season').get_shot_charts
+end
