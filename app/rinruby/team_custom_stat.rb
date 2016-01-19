@@ -146,11 +146,30 @@ class TeamCustomStat
   end
 
   def team_points_per_possession_allowed
-    (team_total_points_allowed / team_total_possessions.to_f) if !team_total_points_allowed.nil? && !team_total_possessions.nil?
+    (team_total_points_allowed / team_total_possessions.to_f) - opponents_average if !team_total_points_allowed.nil? && !team_total_possessions.nil?
   end
 
   def team_possessions_per_minute
     (team_total_possessions / team_total_minutes.to_f) if !team_total_possessions.nil? && !team_total_minutes.nil?
+  end
+
+  def opponents_average
+    if !@games_filtered.empty?
+      opponents = []
+
+      @games_filtered.each do |game|
+        opponents.push(game.home_team_id)
+        opponents.push(game.away_team_id)
+      end
+
+      opponents = opponents.select { |opp_id| @team_id != opp_id }
+      opponents_numbers = {}
+      opponents.each do |opponent|
+        opponents_numbers[opponent] = TeamCustomStat.new(start_date: @start_date, end_date: @end_date, team_id: opponent).team_points_per_possession
+      end
+
+      return (opponents_numbers.values.inject(:+) / opponents_numbers.length)
+    end
   end
 
   def possessions_formula(values)
