@@ -1,3 +1,6 @@
 Rails.application.routes.draw do
-  root "stats#index"
+  namespace :api do
+    resources :players, only: :index
+    resources :stat_lines, only: :index
+  end
 end
