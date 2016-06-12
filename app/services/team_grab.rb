@@ -38,7 +38,7 @@ class TeamGrab
     TEAM_CODES.each do |name, id|
       team_json = HTTP.get(link_builder(id)).parse
       team_data = grab_specific_team_data(team_json['resultSets'].first['rowSet'][0])
-      team_record = Team.find_by_nba_team_id(team_data[:nba_team_id])
+      team_record = Team.where(nba_team_id: team_data[:nba_team_id], city: team_data[:city]).first
 
       if team_record
         team_record.update_attributes(team_data)

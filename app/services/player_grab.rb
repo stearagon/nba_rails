@@ -33,19 +33,19 @@ class PlayerGrab
 
     names = (player_json[1].split(', '))
 
-    if names.length == 1
+    if names.size == 1
       last_name, first_name = names[0], names[0]
     else
       last_name, first_name = names[0], names [1]
     end
 
     player_data[:nba_player_id] = player_json[0]
-    player_data[:season] = @season
     player_data[:first_name] = first_name
     player_data[:last_name] = last_name
     player_data[:rookie_year] = player_json[3]
     player_data[:final_year] = player_json[4]
-    player_data[:nba_team_id] = player_json[6]
+    player_data[:season] = @season
+    player_data[:nba_team_id] = player_json[7]
 
     player_data
   end

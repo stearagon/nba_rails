@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151204130240) do
+ActiveRecord::Schema.define(version: 20160612162311) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -158,7 +158,7 @@ ActiveRecord::Schema.define(version: 20151204130240) do
     t.datetime "updated_at"
   end
 
-  add_index "teams", ["nba_team_id"], name: "index_teams_on_nba_team_id", unique: true, using: :btree
+  add_index "teams", ["nba_team_id", "city", "season"], name: "index_teams_on_nba_team_id_and_city_and_season", unique: true, using: :btree
 
   create_table "tracking_stat_lines", force: :cascade do |t|
     t.string   "nba_game_id"
