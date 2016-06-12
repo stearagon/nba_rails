@@ -72,12 +72,12 @@ ActiveRecord::Schema.define(version: 20160612162311) do
 
   create_table "players", force: :cascade do |t|
     t.integer  "nba_player_id", null: false
-    t.string   "season",        null: false
     t.string   "first_name",    null: false
     t.string   "last_name",     null: false
     t.integer  "rookie_year",   null: false
-    t.integer  "final_year",    null: false
-    t.integer  "nba_team_id",   null: false
+    t.integer  "final_year"
+    t.string   "season",        null: false
+    t.integer  "nba_team_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -100,19 +100,19 @@ ActiveRecord::Schema.define(version: 20160612162311) do
     t.string  "nba_grid_type", null: false
     t.integer "nba_player_id", null: false
     t.integer "nba_team_id",   null: false
-    t.float   "period",        null: false
-    t.float   "minutes_left",  null: false
-    t.float   "seconds_left",  null: false
+    t.integer "period",        null: false
+    t.integer "minutes_left",  null: false
+    t.integer "seconds_left",  null: false
     t.string  "event_type",    null: false
     t.string  "action_type",   null: false
     t.string  "shot_type",     null: false
     t.string  "zone_basic",    null: false
     t.string  "zone_area",     null: false
     t.string  "zone_range",    null: false
-    t.float   "distance",      null: false
-    t.float   "location_x",    null: false
-    t.float   "location_y",    null: false
-    t.float   "made_shot?",    null: false
+    t.integer "distance",      null: false
+    t.integer "location_x",    null: false
+    t.integer "location_y",    null: false
+    t.integer "made_shot?",    null: false
   end
 
   add_index "shot_charts", ["nba_game_id"], name: "index_shot_charts_on_nba_game_id", using: :btree
