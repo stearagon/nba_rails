@@ -19,6 +19,14 @@ group :development, :test do
   gem 'better_errors'
   gem 'pry-rails'
   gem 'annotate'
+  gem 'pry-byebug'
+  gem 'pry-bloodline'
+  gem 'pry-stack_explorer'
+  gem 'rspec-rails'
+  gem 'capybara'
+  gem 'jasmine'
+  gem 'bundler-audit'
+  gem 'crawl'
 end
 
 group :development do
