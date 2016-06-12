@@ -15,13 +15,6 @@
 #
 
 class Player < ActiveRecord::Base
-  belongs_to(
-    :team,
-    class_name: 'Team',
-    foreign_key: :nba_team_id,
-    primary_key: :nba_team_id
-  )
-
   has_many(
     :stat_lines,
     class_name: 'StatLine',
@@ -29,6 +22,7 @@ class Player < ActiveRecord::Base
     primary_key: :nba_player_id
   )
 
+  has_many :teams,  -> { distinct }, through: :stat_lines, source: :team
   has_many :games, through: :stat_lines, source: :game
 
   has_many(
