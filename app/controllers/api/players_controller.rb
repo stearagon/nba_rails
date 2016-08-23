@@ -4,7 +4,7 @@ module Api
       player_finder = ModelFinder::Player.new(params)
       @players = player_finder.find
 
-      render json: @players
+      render json: { players: @players }
     end
   end
 end

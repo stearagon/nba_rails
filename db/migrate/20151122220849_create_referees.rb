@@ -1,7 +1,7 @@
 class CreateReferees < ActiveRecord::Migration
   def change
     create_table :referees do |t|
-      t.integer :nba_referee_id, null: false
+      t.string  :nba_id, null: false
       t.string :first_name, null: false
       t.string :last_name, null: false
       t.integer :jersey_number, null: false
@@ -9,7 +9,7 @@ class CreateReferees < ActiveRecord::Migration
       t.timestamps
     end
 
-    add_index :referees, :nba_referee_id, unique: true
+    add_index :referees, :nba_id, unique: true
 
     create_table :game_referees do |t|
       t.string :game_id, null: false

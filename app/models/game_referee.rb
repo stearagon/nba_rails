@@ -10,6 +10,6 @@
 #
 
 class GameReferee < ActiveRecord::Base
-  has_one :referee, class_name: 'Referee', foreign_key: :nba_referee_id, primary_key: :referee_id
-  has_one :game, class_name: 'Game', foreign_key: :nba_game_id, primary_key: :game_id
+  has_one :referee, class_name: 'Referee', foreign_key: :referee_id, primary_key: :nba_id
+  has_one :game, class_name: 'Game', foreign_key: :game_id, primary_key: :nba_id
 end

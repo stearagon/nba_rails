@@ -42,7 +42,7 @@ module ModelFinder
       scope
         .where("LOWER(players.season) LIKE LOWER(?)",
           "%#{params[param]}%")
-        .where("nba_team_id != 0")
+        .where("team_id != 0")
     end
 
     def searchable_params

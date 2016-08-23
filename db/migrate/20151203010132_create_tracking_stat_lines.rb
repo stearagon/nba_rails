@@ -1,9 +1,9 @@
 class CreateTrackingStatLines < ActiveRecord::Migration
   def change
     create_table :tracking_stat_lines do |t|
-      t.string :nba_game_id
-      t.integer :nba_team_id
-      t.integer :nba_player_id
+      t.string :game_id
+      t.string :team_id
+      t.string :player_id
       t.string :start_position
       t.float :minutes
       t.float :speed
@@ -25,7 +25,7 @@ class CreateTrackingStatLines < ActiveRecord::Migration
       t.timestamps
     end
 
-    add_index :tracking_stat_lines, [:nba_game_id, :nba_team_id, :nba_player_id],
+    add_index :tracking_stat_lines, [:game_id, :team_id, :player_id],
       unique: true, name: 'tracking_stat_line_index'
   end
 end

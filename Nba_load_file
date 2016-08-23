@@ -3,7 +3,8 @@ def one_digit_day(digit)
   digit
 end
 
-dates = (Date.new(2016,1,18)..Date.new(2016,1,18)).to_a
+dates = (Date.new(2015,10,27)..Date.new(2016,4,13)).to_a
+q
 
 formatted_dates = []
 
@@ -11,6 +12,7 @@ dates.each do |date|
   month = date.month < 10 ? "0" + date.month.to_s : date.month.to_s
   formatted_dates << (date.year.to_s + month + one_digit_day(date.day.to_s)).to_s
 end
+q
 
 season_start_year = "2015"
 
@@ -25,7 +27,8 @@ end
     digit
   end
 
-  dates = (Date.new(2016,1,18)..Date.new(2016,1,18)).to_a
+  dates = (Date.new(2015,10,27)..Date.new(2016,4,13)).to_a
+  q
 
   formatted_dates = []
 
@@ -33,6 +36,7 @@ end
     month = date.month < 10 ? "0" + date.month.to_s : date.month.to_s
     formatted_dates << (date.year.to_s + month + one_digit_day(date.day.to_s)).to_s
   end
+  q
 
   formatted_dates.each do |date|
     RefereeGrab.new(date).get_referees
