@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
-  namespace :api do
-    resources :players, only: :index
-    resources :stat_lines, only: :index
-  end
+    devise_for :users, controllers: { sessions: 'api/sessions' }
+
+    namespace :api do
+        resources :players, only: :index
+        resources :stat_lines, only: :index
+        resources :users, only: :index
+    end
 end

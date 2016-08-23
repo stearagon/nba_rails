@@ -1,10 +1,13 @@
 class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
-  protect_from_forgery with: :exception
+  protect_from_forgery with: :null_session, prepend: true
 
-  before_filter :cors_preflight_check
-  after_filter :cors_set_access_control_headers
+  before_action :cors_preflight_check
+  after_action :cors_set_access_control_headers
+
+  before_action :authenticate_user_from_token!
+  before_action :authenticate_user!
 
   def cors_set_access_control_headers
     headers['Access-Control-Allow-Origin'] = ENV['ALLOWED_CROSS_ORIGINS']
@@ -22,5 +25,17 @@ class ApplicationController < ActionController::Base
 
       render :text => '', :content_type => 'text/plain'
     end
+  end
+
+  private
+  def authenticate_user_from_token!
+      authenticate_with_http_token do |token, options|
+          user_email = options[:email].presence
+          user = user_email && User.find_by_email(user_email)
+
+          if user && Devise.secure_compare(user.authentication_token, token)
+              sign_in user, store: false
+          end
+      end
   end
 end
