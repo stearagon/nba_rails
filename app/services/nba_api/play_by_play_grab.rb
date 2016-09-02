@@ -1,34 +1,44 @@
 module NBAApi
   class PlayByPlayGrab
-    def initialize(game_id)
+    attr_reader :game_id, :season_type, :game, :season
+
+    def initialize(game_id, season_type)
       @game_id = game_id
+      @season_type = season_type
     end
 
     def get_plays
-      stat_line_json = HTTP.get(link_builder(game.nba_game_id)).parse
+      play_by_play_json = HTTP.get(link_builder(game.nba_game_id)).parse
 
-      stat_line_json['resultSets'][0]['rowSet'].each do |stat_line|
-        stat_data = grab_specific_stat_line_data(stat_line)
-        new_stat_line = StatLine.find_by(nba_game_id: stat_data[:nba_game_id], nba_player_id: stat_data[:nba_player_id])
+      play_by_play_json['resultSets'][0]['rowSet'].each do |play|
+        play_data = grab_specific_play_data(play)
+        new_play = Play.find_by(game_id: play_data[:nba_game_id], event_num: play_data[:event_num])
 
-        if new_stat_line
-            new_stat_line.update(stat_data)
+        if new_play
+            new_play.update(play_data)
         else
-          StatLine.create(stat_data)
+          Play.create(play_data)
         end
       end
 
       return "Done"
     end
 
-    def link_builder(game_id)
-      game = Game.find_by_nba_id(game_id)
-      link = 'http://stats.nba.com/stats/boxscoretraditionalv2?EndPeriod=10&EndRange='
+    def season
+      @season ||= ::Helpers::SeasonHelper.season_finder(game.date)
+    end
+
+    def game
+      @game ||= Game.find_by_nba_id(game_id)
+    end
+
+    def link_builder
+      link = 'http://stats.nba.com/stats/playbyplayv2?EndPeriod=10&EndRange='
       link += game.quarters == 4 ? '28800' : ((game.quarters.to_i - 4 * 3000) + 28800).to_s
       link += '&GameID='
       link += game_id
       link += '&RangeType=0&Season='
-      link += @season
+      link += season
       link += '&SeasonType='
       link += @season_type
       link += '&StartPeriod=1&StartRange=0'
@@ -36,32 +46,32 @@ module NBAApi
       link
     end
 
-    def grab_specific_stat_line_data(stats)
-      stat_line_data = {}
-      split_time = stats[8].nil? ? [0,0] : stats[8].split(':')
-      adjusted_minutes = split_time[0].to_i + (split_time[1].to_f / 60)
+    def grab_specific_play_data(play)
+      play_data = {}
 
-      stat_line_data[:game_id] = stats[0]
-      stat_line_data[:team_id] = stats[1]
-      stat_line_data[:player_id] = stats[4]
-      stat_line_data[:start_position] = stats[6]
-      stat_line_data[:minutes] = adjusted_minutes
-      stat_line_data[:fgm] = stats[9]
-      stat_line_data[:fga] = stats[10]
-      stat_line_data[:fg3m] = stats[12]
-      stat_line_data[:fg3a] = stats[13]
-      stat_line_data[:ftm] = stats[15]
-      stat_line_data[:fta] = stats[16]
-      stat_line_data[:oreb] = stats[18]
-      stat_line_data[:dreb] = stats[19]
-      stat_line_data[:ast] = stats[21]
-      stat_line_data[:stl] = stats[22]
-      stat_line_data[:blk] = stats[23]
-      stat_line_data[:to] = stats[24]
-      stat_line_data[:pf] = stats[25]
-      stat_line_data[:plus_minus] = stats[27]
+      play_data[:game_id] = stats[0]
+      play_data[:event_num] = stats[1]
+      play_data[:event_msg_type] = stats[2]
+      play_data[:event_msg_action_type] = stats[3]
+      play_data[:period] = stats[4]
+      play_data[:time] = stats[5]
+      play_data[:play_clock_time] = stats[6]
+      play_data[:home_description] = stats[7]
+      play_data[:neutral_description] = stats[8]
+      play_data[:visitor_description] = stats[9]
+      play_data[:score] = stats[10]
+      play_data[:score_margin] = stats[11]
+      play_data[:person_1_type] = stats[12]
+      play_data[:player_1_id] = stats[13]
+      play_data[:player_1_team_id] = stats[15]
+      play_data[:person_2_type] = stats[19]
+      play_data[:person_2_id] = stats[20]
+      play_data[:person_2_team_id] = stats[22]
+      play_data[:person_3_type] = stats[26]
+      play_data[:person_3_id] = stats[27]
+      play_data[:person_3_team_id] = stats[29]
 
-      stat_line_data
+      play_data
     end
   end
 end

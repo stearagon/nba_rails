@@ -25,6 +25,8 @@ module NbaRails
     config.autoload_paths
     config.middleware.use ActionDispatch::Flash
 
+    config.autoload_paths += %W(#{config.root}/lib)
+
     config.middleware.insert_before 0, "Rack::Cors" do
       allow do
         origins '*'
