@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160823020704) do
+ActiveRecord::Schema.define(version: 20160904032625) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -57,21 +57,33 @@ ActiveRecord::Schema.define(version: 20160823020704) do
   end
 
   create_table "games", force: :cascade do |t|
-    t.string   "nba_id",         null: false
-    t.datetime "date",           null: false
-    t.boolean  "completed?",     null: false
-    t.boolean  "overtime?",      null: false
-    t.boolean  "national_game?", null: false
-    t.boolean  "TNT?",           null: false
-    t.string   "away_team_id",   null: false
-    t.string   "home_team_id",   null: false
-    t.integer  "quarters",       null: false
+    t.string   "nba_id",                         null: false
+    t.datetime "date",                           null: false
+    t.boolean  "completed?",                     null: false
+    t.boolean  "overtime?",                      null: false
+    t.boolean  "national_game?",                 null: false
+    t.boolean  "TNT?",                           null: false
+    t.string   "away_team_id",                   null: false
+    t.string   "home_team_id",                   null: false
+    t.integer  "quarters",                       null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "redo_lineups",   default: false
     t.index ["away_team_id"], name: "index_games_on_away_team_id", using: :btree
     t.index ["date"], name: "index_games_on_date", using: :btree
     t.index ["home_team_id"], name: "index_games_on_home_team_id", using: :btree
     t.index ["nba_id"], name: "index_games_on_nba_id", using: :btree
+  end
+
+  create_table "lineups", force: :cascade do |t|
+    t.string   "player_1_id", null: false
+    t.string   "player_2_id", null: false
+    t.string   "player_3_id", null: false
+    t.string   "player_4_id", null: false
+    t.string   "player_5_id", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.index ["player_1_id", "player_2_id", "player_3_id", "player_4_id", "player_5_id"], name: "unique_lineups", unique: true, using: :btree
   end
 
   create_table "players", force: :cascade do |t|
@@ -83,6 +95,37 @@ ActiveRecord::Schema.define(version: 20160823020704) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["nba_id"], name: "index_players_on_nba_id", using: :btree
+  end
+
+  create_table "plays", force: :cascade do |t|
+    t.string   "game_id",               null: false
+    t.integer  "event_num",             null: false
+    t.integer  "event_msg_type",        null: false
+    t.integer  "event_msg_action_type", null: false
+    t.integer  "period",                null: false
+    t.string   "time",                  null: false
+    t.string   "play_clock_time",       null: false
+    t.string   "home_description"
+    t.string   "neutral_description"
+    t.string   "visitor_description"
+    t.integer  "score"
+    t.integer  "score_margin"
+    t.integer  "player_1_type"
+    t.integer  "player_1_id"
+    t.integer  "player_1_team_id"
+    t.integer  "player_2_type"
+    t.integer  "player_2_id"
+    t.integer  "player_2_team_id"
+    t.integer  "player_3_type"
+    t.integer  "player_3_id"
+    t.integer  "player_3_team_id"
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.string   "home_lineup_id"
+    t.string   "away_lineup_id"
+    t.index ["game_id", "period"], name: "index_plays_on_game_id_and_period", using: :btree
+    t.index ["game_id", "player_1_team_id"], name: "index_plays_on_game_id_and_player_1_team_id", using: :btree
+    t.index ["game_id"], name: "index_plays_on_game_id", using: :btree
   end
 
   create_table "referees", force: :cascade do |t|
