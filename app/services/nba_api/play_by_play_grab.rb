@@ -8,16 +8,16 @@ module NBAApi
     end
 
     def get_plays
-      play_by_play_json = HTTP.get(link_builder(game.nba_game_id)).parse
+      play_by_play_json = HTTP.get(link_builder).parse
 
       play_by_play_json['resultSets'][0]['rowSet'].each do |play|
         play_data = grab_specific_play_data(play)
-        new_play = Play.find_by(game_id: play_data[:nba_game_id], event_num: play_data[:event_num])
+        new_play = ::Play.find_by(game_id: play_data[:game_id], event_num: play_data[:event_num])
 
         if new_play
             new_play.update(play_data)
         else
-          Play.create(play_data)
+          ::Play.create(play_data)
         end
       end
 
@@ -49,27 +49,27 @@ module NBAApi
     def grab_specific_play_data(play)
       play_data = {}
 
-      play_data[:game_id] = stats[0]
-      play_data[:event_num] = stats[1]
-      play_data[:event_msg_type] = stats[2]
-      play_data[:event_msg_action_type] = stats[3]
-      play_data[:period] = stats[4]
-      play_data[:time] = stats[5]
-      play_data[:play_clock_time] = stats[6]
-      play_data[:home_description] = stats[7]
-      play_data[:neutral_description] = stats[8]
-      play_data[:visitor_description] = stats[9]
-      play_data[:score] = stats[10]
-      play_data[:score_margin] = stats[11]
-      play_data[:person_1_type] = stats[12]
-      play_data[:player_1_id] = stats[13]
-      play_data[:player_1_team_id] = stats[15]
-      play_data[:person_2_type] = stats[19]
-      play_data[:person_2_id] = stats[20]
-      play_data[:person_2_team_id] = stats[22]
-      play_data[:person_3_type] = stats[26]
-      play_data[:person_3_id] = stats[27]
-      play_data[:person_3_team_id] = stats[29]
+      play_data[:game_id] = play[0]
+      play_data[:event_num] = play[1]
+      play_data[:event_msg_type] = play[2]
+      play_data[:event_msg_action_type] = play[3]
+      play_data[:period] = play[4]
+      play_data[:time] = play[5]
+      play_data[:play_clock_time] = play[6]
+      play_data[:home_description] = play[7]
+      play_data[:neutral_description] = play[8]
+      play_data[:visitor_description] = play[9]
+      play_data[:score] = play[10]
+      play_data[:score_margin] = play[11]
+      play_data[:player_1_type] = play[12]
+      play_data[:player_1_id] = play[13]
+      play_data[:player_1_team_id] = play[15]
+      play_data[:player_2_type] = play[19]
+      play_data[:player_2_id] = play[20]
+      play_data[:player_2_team_id] = play[22]
+      play_data[:player_3_type] = play[26]
+      play_data[:player_3_id] = play[27]
+      play_data[:player_3_team_id] = play[29]
 
       play_data
     end

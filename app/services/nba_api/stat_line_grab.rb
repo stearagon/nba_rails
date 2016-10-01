@@ -29,17 +29,62 @@ module NBAApi
       return "Done"
     end
 
-    def link_builder(game_id)
+    def get_quarter_starters(quarter, game)
+      add_time = 10
+      stat_lines = []
+      p link_builder(game.nba_id, { quarter_start: quarter, add_time: add_time  })
+      p quarter
+      while stat_lines.length < 10
+        p link_builder(game.nba_id, { quarter_start: quarter, add_time: add_time  })
+        p quarter
+        stat_line_json = HTTP.get(link_builder(game.nba_id, { quarter_start: quarter, add_time: add_time  })).parse
+
+        stat_lines = stat_line_json['resultSets'][0]['rowSet']
+        add_time += 10
+      end
+
+      if stat_lines.length == 10
+        grab_quarter_starters(stat_lines, game)
+      else
+        binding.pry
+        grab_quarter_starters(stat_lines, game)
+        #game.update!(redo_lineups: true)
+        #p "starters length not right #{stat_lines.length}"
+        #false
+      end
+    end
+
+    def link_builder(game_id, options={})
       game = Game.find_by_nba_id(game_id)
+      end_of_game_range = game.quarters == 4 ? '28800' : ((game.quarters.to_i - 4 * 3000) + 28800).to_s
+      start_range = if options[:quarter_start]
+        if options[:quarter_start] > 4
+          4 * 7200 + 1 + ((options[:quarter_start] - 5) * 3000)
+        else
+          (options[:quarter_start] - 1) * 7200 + 1
+        end
+      end
+      range_type = options[:quarter_start] ? '2' : '0'
+      end_range = if options[:quarter_start]
+        if options[:quarter_start] > 4
+          4 * 7200 + 1 + ((options[:quarter_start] - 5) * 3000) + options[:add_time]
+        else
+          (options[:quarter_start] - 1) * 7200 + 1 + options[:add_time]
+        end
+      end
+
       link = 'http://stats.nba.com/stats/boxscoretraditionalv2?EndPeriod=10&EndRange='
-      link += game.quarters == 4 ? '28800' : ((game.quarters.to_i - 4 * 3000) + 28800).to_s
+      link += end_range.to_s || end_of_game_range.to_s
       link += '&GameID='
       link += game_id
-      link += '&RangeType=0&Season='
+      link += '&RangeType='
+      link += range_type
+      link+= '&Season='
       link += @season
       link += '&SeasonType='
       link += @season_type
-      link += '&StartPeriod=1&StartRange=0'
+      link += '&StartPeriod=1&StartRange='
+      link += start_range.to_s || 0.to_s
 
       link
     end
@@ -70,6 +115,23 @@ module NBAApi
       stat_line_data[:plus_minus] = stats[27]
 
       stat_line_data
+    end
+
+    def grab_quarter_starters(stats, game)
+      starters = {
+        home: [],
+        away: []
+      }
+      stats.each do |stat_line|
+        if stat_line[1].to_s == game.home_team_id
+          starters[:home].push(stat_line[4])
+        else
+          starters[:away].push(stat_line[4])
+        end
+      end
+      starters[:home] = starters[:home].sort { |a,b| b<=>a }
+      starters[:away] = starters[:away].sort { |a,b| b<=>a }
+      starters
     end
   end
 end
