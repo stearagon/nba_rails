@@ -43,4 +43,8 @@ class Player < ActiveRecord::Base
     foreign_key: :player_id,
     primary_key: :nba_id
   )
+
+  def name
+    "#{first_name} #{last_name}"
+  end
 end

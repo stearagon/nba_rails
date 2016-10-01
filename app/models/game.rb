@@ -107,4 +107,8 @@ class Game < ActiveRecord::Base
 
     games_in_10_days
   end
+
+  def sorted_plays
+     plays.sort_by { |play| [play.play_time_in_secs, play.event_num, play.event_msg_type] }
+  end
 end
