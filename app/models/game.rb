@@ -28,9 +28,32 @@ class Game < ActiveRecord::Base
   has_many :advanced_stat_lines, class_name: 'AdvancedStatLine', foreign_key: :game_id, primary_key: :nba_id
 
   has_many :played_stat_lines, -> (object){ where("minutes > ?", 0)}, class_name: 'StatLine', foreign_key: :game_id, primary_key: :nba_id
+
+  has_many :home_starter_stat_lines,
+    -> (object){
+      where("team_id = ? AND start_position != ?", object.home_team_id, '')
+    },
+    class_name: 'StatLine',
+    foreign_key: :game_id,
+    primary_key: :nba_id
+
+  has_many :home_starters, -> { order('players.nba_id DESC') }, through: :home_starter_stat_lines, source: :player
+
+  has_many :away_starter_stat_lines,
+    -> (object){
+      where("team_id = ? AND start_position != ?", object.away_team_id, '')
+    },
+    class_name: 'StatLine',
+    foreign_key: :game_id,
+    primary_key: :nba_id
+
+  has_many :away_starters, -> { order('players.nba_id DESC') }, through: :away_starter_stat_lines, source: :player
+
   has_many :played_players, through: :played_stat_lines, source: :player
 
   has_many :dressed_players, through: :stat_lines, source: :player
+
+  has_many :plays, class_name: 'Play', foreign_key: 'game_id', primary_key: 'nba_id'
 
   def home_team_stat_lines
     self.stat_lines.select { |stat_lines| stat_lines.team_id == self.home_team_id }
