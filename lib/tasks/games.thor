@@ -53,7 +53,7 @@ class Games < Thor
   def parsed_dates(start_date, end_date)
     start = Date.parse(start_date)
     endd = end_date ? Date.parse(end_date) : start
-    season = ::Helpers::SeasonHelper.season_finder(start)
+    season = ::Helpers::SeasonHelper.start_year(start)
 
     [start, endd, season]
   end
