@@ -15,9 +15,9 @@ module NBAApi
 
           tracking_stat_line_json['resultSets'][0]['rowSet'].each do |tracking_stat_line|
             tracking_stat_data = grab_specific_tracking_stat_line_data(tracking_stat_line)
-            new_tracking_stat_line = TrackingStatLine.find_by(game_id: tracking_stat_data[:nba_game_id], player_id: tracking_stat_data[:nba_player_id])
-            if new_tracking_stat_line
-                new_tracking_stat_line.update(tracking_stat_data)
+            old_tracking_stat_line = TrackingStatLine.find_by(game_id: tracking_stat_data[:game_id], player_id: tracking_stat_data[:player_id])
+            if old_tracking_stat_line
+                old_tracking_stat_line.update(tracking_stat_data)
             else
               TrackingStatLine.create(tracking_stat_data)
             end

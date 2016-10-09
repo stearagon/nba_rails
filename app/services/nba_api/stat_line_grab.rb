@@ -15,12 +15,12 @@ module NBAApi
 
           stat_line_json['resultSets'][0]['rowSet'].each do |stat_line|
             stat_data = grab_specific_stat_line_data(stat_line)
-            new_stat_line = StatLine.find_by(game_id: stat_data[:nba_game_id], player_id: stat_data[:nba_player_id])
+            old_stat_line = StatLine.find_by(game_id: stat_data[:game_id], player_id: stat_data[:player_id])
 
-            if new_stat_line
-                new_stat_line.update(stat_data)
+            if old_stat_line
+                old_stat_line.update(stat_data)
             else
-              StatLine.create(stat_data)
+                StatLine.create(stat_data)
             end
           end
         end
@@ -74,7 +74,7 @@ module NBAApi
       end
 
       link = 'http://stats.nba.com/stats/boxscoretraditionalv2?EndPeriod=10&EndRange='
-      link += end_range.to_s || end_of_game_range.to_s
+      link += (end_range || end_of_game_range).to_s
       link += '&GameID='
       link += game_id
       link += '&RangeType='
@@ -84,7 +84,7 @@ module NBAApi
       link += '&SeasonType='
       link += @season_type
       link += '&StartPeriod=1&StartRange='
-      link += start_range.to_s || 0.to_s
+      link += (start_range || 0).to_s
 
       link
     end

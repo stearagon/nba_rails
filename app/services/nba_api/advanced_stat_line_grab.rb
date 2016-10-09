@@ -14,10 +14,10 @@ module NBAApi
 
         advanced_stat_line_json['resultSets'][0]['rowSet'].each do |advanced_stat_line|
           advanced_stat_data = grab_specific_advanced_stat_line_data(advanced_stat_line)
-          new_advanced_stat_line = AdvancedStatLine.find_by(game_id: advanced_stat_data[:nba_game_id], player_id: advanced_stat_data[:nba_player_id])
+          old_advanced_stat_line = AdvancedStatLine.find_by(game_id: advanced_stat_data[:game_id], player_id: advanced_stat_data[:player_id])
 
-          if new_advanced_stat_line
-              new_advanced_stat_line.update(advanced_stat_data)
+          if old_advanced_stat_line
+              old_advanced_stat_line.update(advanced_stat_data)
           else
             AdvancedStatLine.create(advanced_stat_data)
           end

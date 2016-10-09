@@ -37,7 +37,8 @@ class Games < Thor
       ::NBAApi::AdvancedStatLineGrab.new(date, season, 'Regular+Season').get_advanced_stat_lines
       p "updated advanced stat lines for #{date}"
 
-      ::NBAApi::ShotChartGrab.new(date, season, 'Regular+Season').get_shot_charts
+      shot_chart_season = ::Helpers::SeasonHelper.season_finder(date)
+      ::NBAApi::ShotChartGrab.new(date, shot_chart_season, 'Regular+Season').get_shot_charts
       p "updated shot charts for #{date}"
     end
   end
