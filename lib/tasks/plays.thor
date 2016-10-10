@@ -45,7 +45,7 @@ class Plays < Thor
 
           if home_lineup_result == nil
             game.update(redo_lineups: true)
-            p 'only 4 in lineup'
+            p 'Not a lineup of 5 or duplicate player'
             break
           end
 
@@ -55,7 +55,7 @@ class Plays < Thor
 
           if away_lineup_result == nil
             game.update(redo_lineups: true)
-            p 'only 4 in lineup'
+            p 'Not a lineup of 5 or duplicate player'
             break
           end
 
@@ -68,7 +68,12 @@ class Plays < Thor
       elsif play.event_msg_type == 12 && play.period != 1
         season = ::Helpers::SeasonHelper.season_finder(game.date)
         starters = ::NBAApi::StatLineGrab.new(game.date, season, 'Regular%20Season').get_quarter_starters(play.period, game)
-        break if starters == false
+        if starters == false || starters[:home].length != 5 || starters[:home].uniq.count < 5 || starters[:away].length != 5 || starters[:away].uniq.count < 5
+          game.update!(redo_lineups: true)
+          p 'catch all error'
+          break
+        end
+
         home_lineup = Lineup.create_lineup(starters[:home])
         away_lineup = Lineup.create_lineup(starters[:away])
       end
@@ -107,7 +112,7 @@ class Plays < Thor
 
           if home_lineup_result == nil
             game.update(redo_lineups: true)
-            p 'only 4 in lineup'
+            p 'Not a lineup of 5 or duplicate player'
             break
           end
 
@@ -117,7 +122,7 @@ class Plays < Thor
 
           if away_lineup_result == nil
             game.update(redo_lineups: true)
-            p 'only 4 in lineup'
+            p 'Not a lineup of 5 or duplicate player'
             break
           end
 
@@ -130,7 +135,11 @@ class Plays < Thor
       elsif play.event_msg_type == 12 && play.period != 1
         season = ::Helpers::SeasonHelper.season_finder(game.date)
         starters = ::NBAApi::StatLineGrab.new(game.date, season, 'Regular%20Season').get_quarter_starters(play.period, game)
-        break if starters == false
+        if starters == false || starters[:home].length != 5 || starters[:home].uniq.count < 5 || starters[:away].length != 5 || starters[:away].uniq.count < 5
+          game.update!(redo_lineups: true)
+          p 'catch all error'
+          break
+        end
         home_lineup = Lineup.create_lineup(starters[:home])
         away_lineup = Lineup.create_lineup(starters[:away])
       end
@@ -146,6 +155,9 @@ class Plays < Thor
   def handle_substitution(lineup, subbee, subber)
     new_player_array = lineup.replace_player(subbee, subber)
     return nil if new_player_array.length < 5
+    if new_player_array.length != 5 || new_player_array.uniq.count < 5
+        return nil
+    end
     Lineup.create_lineup(new_player_array)
   end
 

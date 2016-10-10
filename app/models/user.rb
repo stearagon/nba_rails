@@ -33,6 +33,8 @@ class User < ApplicationRecord
 
     before_save :ensure_authentication_token
 
+    has_and_belongs_to_many :dashboards
+
     def ensure_authentication_token
         if authentication_token.blank?
             self.authentication_token = generate_authentication_token

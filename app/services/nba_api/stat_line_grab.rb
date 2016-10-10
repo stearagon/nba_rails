@@ -46,7 +46,6 @@ module NBAApi
       if stat_lines.length == 10
         grab_quarter_starters(stat_lines, game)
       else
-        binding.pry
         grab_quarter_starters(stat_lines, game)
         #game.update!(redo_lineups: true)
         #p "starters length not right #{stat_lines.length}"

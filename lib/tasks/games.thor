@@ -46,6 +46,17 @@ class Games < Thor
     end
   end
 
+  desc "grab_plays", "grab plays for specific range of games"
+  def grab_plays(start_date, end_date=nil)
+    start, endd, season = parsed_dates(start_date, end_date)
+    games = ::Game.where("date BETWEEN '#{start_date}' AND '#{end_date}'")
+
+    games.each do |game|
+      ::NBAApi::PlayByPlayGrab.new(game.nba_id, 'Regular+Season').get_plays
+      p "updated plays for game id: #{game.nba_id}"
+    end
+  end
+
   desc "grab_game_and_stats", "grab games and stats for specific range of games"
   def grab_game_and_stats(start_date, end_date=nil)
     grab_games(start_date, end_date)
