@@ -3,16 +3,43 @@ module StatCalculators
         attr_reader :start_date, :end_date, :team_id
         attr_accessor :games_filtered, :game_stats, :games_filtered, :games
 
-        def initialize(start_date:, end_date:, team_id:)
-            @start_date = start_date
-            @end_date = end_date
-            @team_id = team_id
-            self.games
-            self.game_stats
+        def initialize(params)
+            @start_date = params[:start_date]
+            @end_date = params[:end_date]
+            @team_id = params[:team_id]
+            @number_of_games = params[:number_of_games]
         end
 
-        def games
-            @games = Game.includes(:stat_lines).where("(home_team_id = ? OR away_team_id = ?) AND (date BETWEEN ? AND ?)", @team_id, @team_id, @start_date, @end_date)
+        def get_possessions_by_games
+            games = games_by_number
+        end
+
+        def games_by_number
+            Game
+                .includes(:stat_lines)
+                .where(
+                    "(home_team_id = ? OR away_team_id = ?)",
+                    @team_id,
+                    @team_id,
+                )
+                .order(:date)
+                .limit(@number_of_games)
+        end
+
+        def get_possessions_by_dates
+        end
+
+        def games_by_dates
+            @games = Game
+                .includes(:stat_lines)
+                .where(
+                    "(home_team_id = ? OR away_team_id = ?) AND (date BETWEEN ? AND ?)",
+                    @team_id,
+                    @team_id,
+                    @start_date,
+                    @end_date
+                )
+
             @games_filtered = @games
         end
 

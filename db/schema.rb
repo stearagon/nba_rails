@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160904032625) do
+ActiveRecord::Schema.define(version: 20161005035657) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,12 +40,37 @@ ActiveRecord::Schema.define(version: 20160904032625) do
     t.index ["game_id", "team_id", "player_id"], name: "advanced_stat_line_index", unique: true, using: :btree
   end
 
+  create_table "charts", force: :cascade do |t|
+    t.string   "data",       null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "charts_dashboards", id: false, force: :cascade do |t|
+    t.integer  "chart_id",     null: false
+    t.integer  "dashboard_id", null: false
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
   create_table "cities", force: :cascade do |t|
     t.string   "season",     null: false
     t.string   "name",       null: false
     t.string   "team_id",    null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "dashboards", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "dashboards_users", id: false, force: :cascade do |t|
+    t.integer  "user_id",      null: false
+    t.integer  "dashboard_id", null: false
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   create_table "game_referees", force: :cascade do |t|
@@ -245,6 +270,7 @@ ActiveRecord::Schema.define(version: 20160904032625) do
     t.string   "authentication_token",                null: false
     t.datetime "created_at",                          null: false
     t.datetime "updated_at",                          null: false
+    t.integer  "default_dashboard_id"
     t.index ["email"], name: "index_users_on_email", unique: true, using: :btree
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   end
