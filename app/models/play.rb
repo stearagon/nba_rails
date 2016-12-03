@@ -26,8 +26,8 @@
 #  player_3_team_id      :integer
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
-#  home_lineup           :string
-#  away_lineup           :string
+#  home_lineup_id        :string
+#  away_lineup_id        :string
 #
 
 class Play < ActiveRecord::Base

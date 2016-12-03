@@ -14,27 +14,28 @@
 #  quarters       :integer          not null
 #  created_at     :datetime
 #  updated_at     :datetime
+#  redo_lineups   :boolean          default(FALSE)
 #
 
 class Game < ActiveRecord::Base
-  has_one :home_team, class_name: 'Team', foreign_key: :nba_id, primary_key: :home_team_id
-  has_one :away_team, class_name: 'Team', foreign_key: :nba_id, primary_key: :away_team_id
+  has_one :home_team, class_name: 'Team', foreign_key: :nba_team_id, primary_key: :home_team_id
+  has_one :away_team, class_name: 'Team', foreign_key: :nba_team_id, primary_key: :away_team_id
 
   has_many :game_referees, class_name: 'GameReferee', foreign_key: :game_id, primary_key: :nba_id
   has_many :referees, through: :game_referees, source: :referee
 
-  has_many :stat_lines, class_name: 'StatLine', foreign_key: :game_id, primary_key: :nba_id
-  has_many :tracking_stat_lines, class_name: 'TrackingStatLine', foreign_key: :game_id, primary_key: :nba_id
-  has_many :advanced_stat_lines, class_name: 'AdvancedStatLine', foreign_key: :game_id, primary_key: :nba_id
+  has_many :stat_lines, class_name: 'StatLine', foreign_key: :nba_game_id, primary_key: :nba_game_id
+  has_many :tracking_stat_lines, class_name: 'TrackingStatLine', foreign_key: :nba_game_id, primary_key: :nba_game_id
+  has_many :advanced_stat_lines, class_name: 'AdvancedStatLine', foreign_key: :nba_game_id, primary_key: :nba_game_id
 
-  has_many :played_stat_lines, -> (object){ where("minutes > ?", 0)}, class_name: 'StatLine', foreign_key: :game_id, primary_key: :nba_id
+  has_many :played_stat_lines, -> (object){ where("minutes > ?", 0)}, class_name: 'StatLine', foreign_key: :nba_game_id, primary_key: :nba_game_id
 
   has_many :home_starter_stat_lines,
     -> (object){
       where("team_id = ? AND start_position != ?", object.home_team_id, '')
     },
     class_name: 'StatLine',
-    foreign_key: :game_id,
+    foreign_key: :nba_game_id,
     primary_key: :nba_id
 
   has_many :home_starters, -> { order('players.nba_id DESC') }, through: :home_starter_stat_lines, source: :player
@@ -44,8 +45,8 @@ class Game < ActiveRecord::Base
       where("team_id = ? AND start_position != ?", object.away_team_id, '')
     },
     class_name: 'StatLine',
-    foreign_key: :game_id,
-    primary_key: :nba_id
+    foreign_key: :nba_game_id,
+    primary_key: :nba_game_id
 
   has_many :away_starters, -> { order('players.nba_id DESC') }, through: :away_starter_stat_lines, source: :player
 

@@ -23,6 +23,7 @@
 #  authentication_token   :string           not null
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
+#  default_dashboard_id   :integer
 #
 
 class User < ApplicationRecord
@@ -34,6 +35,7 @@ class User < ApplicationRecord
     before_save :ensure_authentication_token
 
     has_and_belongs_to_many :dashboards
+    has_one :default_dashboard, class_name: 'Dashboard', foreign_key: 'id', primary_key: :default_dashboard_id
 
     def ensure_authentication_token
         if authentication_token.blank?

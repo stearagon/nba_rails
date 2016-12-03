@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: lineups
+#
+#  id          :integer          not null, primary key
+#  player_1_id :string           not null
+#  player_2_id :string           not null
+#  player_3_id :string           not null
+#  player_4_id :string           not null
+#  player_5_id :string           not null
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#
+
 class Lineup < ActiveRecord::Base
   def self.create_lineup(players_array)
     raise 'Cannot have 6 players in array' if players_array.length > 5

@@ -5,5 +5,9 @@ Rails.application.routes.draw do
         resources :players, only: :index
         resources :stat_lines, only: :index
         resources :users, only: :index
+        resources :dashboards, only: [:index, :show]
+        resources :teams, only: [:index, :show]
+        resources :games, only: [:index, :show]
+        resources :charts, only: [:index, :show]
     end
 end

@@ -23,6 +23,7 @@
 #  authentication_token   :string           not null
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
+#  default_dashboard_id   :integer
 #
 
 require 'rails_helper'
