@@ -18,6 +18,7 @@ gem 'thor-rails'
 gem 'devise'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'active_model_serializers'
+gem 'rails_12factor'
 
 group :development, :test do
   gem 'byebug'
