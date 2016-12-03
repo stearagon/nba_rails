@@ -72,9 +72,9 @@ module NBAApi
 
     def grab_specific_team_data(team_json)
       team_data = {}
+      p team_json
 
       team_data[:nba_id] = team_json[0]
-      team_data[:season] = @season
       team_data[:city] = team_json[2]
       team_data[:mascot] = team_json[3]
       team_data[:abbreviation] = team_json[4]

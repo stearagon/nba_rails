@@ -47,7 +47,7 @@ module NBAApi
       link += @season_type
       link += '&StartPeriod=1&StartRange=0&TeamID='
       link += stat_line.team.nba_id.to_s
-      link += '&VsConference=&VsDivision=&mtitle=&mtype='
+      link += '&VsConference=&VsDivision=&mtitle=&mtype=&PlayerPosition=';
 
       link
     end
