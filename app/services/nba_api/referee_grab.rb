@@ -8,20 +8,23 @@ module NBAApi
       games = Game.where(date: @date)
 
       games.each do |game|
-        referees_url_get = HTTP.get(link_builder(game.nba_id))
-        referees_json = referees_url_get.status != 404 ? referees_url_get.parse['resultSets'][2]['rowSet'] : []
+        if game.completed?
+          referees_url_get = HTTP.get(link_builder(game.nba_id))
+          p link_builder(game.nba_id)
+          referees_json = referees_url_get.status != 404 ? referees_url_get.parse['resultSets'][2]['rowSet'] : []
 
-        referees_json.each do |referee|
-          referee_data = grab_specific_referee_data(referee)
-          referee_record = Referee.find_by(nba_id: referee_data[:nba_id])
+          referees_json.each do |referee|
+            referee_data = grab_specific_referee_data(referee)
+            referee_record = Referee.find_by(nba_id: referee_data[:nba_id])
 
-          if referee_record.nil?
-            Referee.create(referee_data)
-          end
+            if referee_record.nil?
+              Referee.create(referee_data)
+            end
 
-          new_game_referee = GameReferee.find_by(game_id: game.nba_id, referee_id: referee_data[:nba_id])
-          if new_game_referee.nil?
-            GameReferee.create(game_id: game.nba_id, referee_id: referee_data[:nba_id])
+            new_game_referee = GameReferee.find_by(game_id: game.nba_id, referee_id: referee_data[:nba_id])
+            if new_game_referee.nil?
+              GameReferee.create(game_id: game.nba_id, referee_id: referee_data[:nba_id])
+            end
           end
         end
       end
