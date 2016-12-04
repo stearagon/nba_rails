@@ -40,7 +40,7 @@ module ModelFinder
 
     def team_ids(scope, params)
       scope
-        .joins('LEFT JOIN teams ON stat_lines.nba_team_id = teams.nba_team_id')
+        .joins('LEFT JOIN teams ON stat_lines.team_id = teams.nba_id')
         .where("teams.id = ANY(array[?])",
           params[:team_ids])
     end
@@ -50,9 +50,9 @@ module ModelFinder
       period_start_date =
         date_before_game -  params[:period].to_f.days
       scope
-        .joins('LEFT JOIN games ON stat_lines.nba_game_id = games.nba_game_id')
-        .select("games.date, teams.id AS team_id, games.id AS game_id, teams.nba_team_id, games.nba_game_id")
-        .group("date, team_id, game_id, games.nba_game_id, teams.nba_team_id")
+        .joins('LEFT JOIN games ON stat_lines.game_id = games.nba_id')
+        .select("games.date, teams.id AS reg_team_id, games.id AS reg_game_id, teams.nba_id, games.nba_id")
+        .group("date, reg_team_id, reg_game_id, games.nba_id, teams.nba_id")
         .where("games.date BETWEEN ? AND ?",
           "#{period_start_date.beginning_of_day}",
           "#{date_before_game.end_of_day}")
@@ -68,13 +68,13 @@ module ModelFinder
         scope
           .joins("LEFT JOIN (
               SELECT SUM(inner_sl.dreb) AS dreb,
-                inner_sl.nba_game_id,
-                inner_sl.nba_team_id
+                inner_sl.game_id,
+                inner_sl.team_id
               FROM stat_lines AS inner_sl
-              GROUP BY inner_sl.nba_game_id,
-                inner_sl.nba_team_id) AS opp
-              ON opp.nba_game_id = games.nba_game_id
-                AND opp.nba_team_id != teams.nba_team_id")
+              GROUP BY inner_sl.game_id,
+                inner_sl.team_id) AS opp
+              ON opp.game_id = games.nba_id
+                AND opp.team_id != teams.nba_id")
           .group("opp.dreb")
           .select("SUM(stat_lines.fga)
             + (0.4 * SUM(stat_lines.fta))
@@ -85,13 +85,13 @@ module ModelFinder
         scope
           .joins("LEFT JOIN (
               SELECT SUM(inner_sl.dreb) AS dreb,
-                inner_sl.nba_game_id,
-                inner_sl.nba_team_id
+                inner_sl.game_id,
+                inner_sl.team_id
               FROM stat_lines AS inner_sl
-              GROUP BY inner_sl.nba_game_id,
-                inner_sl.nba_team_id) AS opp
-              ON opp.nba_game_id = games.nba_game_id
-                AND opp.nba_team_id != teams.nba_team_id")
+              GROUP BY inner_sl.game_id,
+                inner_sl.team_id) AS opp
+              ON opp.game_id = games.nba_id
+                AND opp.team_id != teams.nba_id")
           .group("opp.dreb")
           .select("((((SUM(stat_lines.fgm) - SUM(stat_lines.fg3m)) * 2)
             + (SUM(stat_lines.fg3m) * 3)

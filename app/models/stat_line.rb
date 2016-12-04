@@ -30,5 +30,5 @@ class StatLine < ActiveRecord::Base
   attr_reader :home_team_id
   belongs_to :team, class_name: 'Team', foreign_key: :team_id, primary_key: :nba_id
   belongs_to :player, class_name: 'Player', foreign_key: :player_id, primary_key: :nba_id
-  belongs_to :game, class_name: 'Game', foreign_key: :nba_id, primary_key: :game_id
+  belongs_to :game, class_name: 'Game', foreign_key: :game_id, primary_key: :nba_id
 end
