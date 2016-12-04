@@ -10,22 +10,24 @@ module NBAApi
       games = Game.where(date: @date)
 
       games.each do |game|
-        game.stat_lines.each do |stat_line|
-          player = stat_line.player
-          team = stat_line.team
+        if game.completed?
+          game.stat_lines.each do |stat_line|
+            player = stat_line.player
+            team = stat_line.team
 
-          shot_chart_json = HTTP.get(link_builder(player, game, stat_line)).parse
+            shot_chart_json = HTTP.get(link_builder(player, game, stat_line)).parse
 
-          shot_chart_json['resultSets'][0]['rowSet'].each do |shot_chart|
-            shot_chart_data = grab_specific_shot_chart_data(shot_chart)
-            new_shot_chart = ShotChart.find_by(game_id: shot_chart_data[:nba_game_id],
-              player_id: player.nba_id, period: shot_chart_data[:period],
-              minutes_left: shot_chart_data[:minutes_left], seconds_left: shot_chart_data[:seconds_left])
+            shot_chart_json['resultSets'][0]['rowSet'].each do |shot_chart|
+              shot_chart_data = grab_specific_shot_chart_data(shot_chart)
+              new_shot_chart = ShotChart.find_by(game_id: shot_chart_data[:nba_game_id],
+                player_id: player.nba_id, period: shot_chart_data[:period],
+                minutes_left: shot_chart_data[:minutes_left], seconds_left: shot_chart_data[:seconds_left])
 
-            if new_shot_chart
-              new_shot_chart.update(shot_chart_data)
-            else
-              ShotChart.create(shot_chart_data)
+              if new_shot_chart
+                new_shot_chart.update(shot_chart_data)
+              else
+                ShotChart.create(shot_chart_data)
+              end
             end
           end
         end

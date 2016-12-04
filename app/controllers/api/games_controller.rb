@@ -7,7 +7,7 @@ module Api
     end
 
     def show
-      @game = Game.find(game_params['id'])
+      @game = Game.find(params['id'])
 
       render json: @game, serializer: ::Api::GameSerializer, root: :games
     end
