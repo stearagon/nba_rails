@@ -21,7 +21,9 @@ module Api
     end
 
     def after_sign_in_path_for(resource)
-      if resource.identity.provider == 'twitter'
+      if resource.identity.provider == 'twitter' && !resource.email_verified?
+        finish_signup_path(resource)
+      elsif resource.identity.provider == 'twitter'
         "#{ENV['STAT_STOP_URL']}/?code=#{resource.authentication_token},#{resource.email}"
       else
         super resource

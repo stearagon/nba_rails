@@ -4,6 +4,8 @@ Rails.application.routes.draw do
       omniauth_callbacks: 'api/omniauth_callbacks'
     }
 
+    match '/users/:id/finish_signup' => 'api/users#finish_signup', via: [:get, :patch], :as => :finish_signup
+
     namespace :api do
         resources :players, only: :index
         resources :stat_lines, only: :index
