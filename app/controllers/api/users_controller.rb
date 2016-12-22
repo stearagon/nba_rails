@@ -9,54 +9,49 @@ module Api
     end
 
 
-  # GET /users/:id.:format
-  def show
-    # authorize! :read, @user
-  end
+    # GET /users/:id.:format
+    def show
+      # authorize! :read, @user
+    end
 
-  # GET /users/:id/edit
-  def edit
-    # authorize! :update, @user
-  end
+    # GET /users/:id/edit
+    def edit
+      # authorize! :update, @user
+    end
 
-  def finish_signup
-    # authorize! :update, @user 
-    if request.patch? && params[:user] #&& params[:user][:email]
-      if @user.update(user_auth_params)
-        redirect_to "#{ENV['STAT_STOP_URL']}/?code=#{@user.authentication_token},#{@user.email}", notice: 'Your profile was successfully updated.'
-      else
-        @show_errors = true
+    def finish_signup
+      # authorize! :update, @user 
+      if request.patch? && params[:user] #&& params[:user][:email]
+        if @user.update(user_auth_params)
+          redirect_to "#{ENV['STAT_STOP_URL']}/?code=#{@user.authentication_token},#{@user.email}", notice: 'Your profile was successfully updated.'
+        else
+          @show_errors = true
+        end
       end
     end
-  end
 
-  # PATCH/PUT /users/:id.:format
-  def update
-    # authorize! :update, @user
-    respond_to do |format|
-      if @user.update(user_auth_params)
-        sign_in(@user == current_user ? @user : current_user, :bypass => true)
-        format.html { redirect_to @user, notice: 'Your profile was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: 'edit' }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
+    # PATCH/PUT /users/:id.:format
+    def update
+      # authorize! :update, @user
+        if @user.update(user_auth_params)
+          redirect_to @user, notice: 'Your profile was successfully updated.'
+        else
+          render action: 'edit'
+        end
     end
-  end
 
     private
-      def set_user
-        @user = User.find(params[:id])
-      end
-
-      def user_params
-        accessible = [ :id, :name, :email ] # extend with your own params
-        params.require(:filter).permit(accessible)
-      end
-
-      def user_auth_params
-        params.require(:user).permit(:email)
-      end
+    def set_user
+      @user = User.find(params[:id])
     end
+
+    def user_params
+      accessible = [ :id, :name, :email ] # extend with your own params
+      params.require(:filter).permit(accessible)
+    end
+
+    def user_auth_params
+      params.require(:user).permit(:email)
+    end
+  end
 end
