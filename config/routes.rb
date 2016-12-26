@@ -9,7 +9,7 @@ Rails.application.routes.draw do
     namespace :api do
         resources :players, only: :index
         resources :stat_lines, only: :index
-        resources :users, only: :index
+        resources :users, only: [:index, :create]
         resources :dashboards, only: [:index, :show]
         resources :teams, only: [:index, :show]
         resources :games, only: [:index, :show]

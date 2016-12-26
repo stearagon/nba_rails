@@ -1,6 +1,8 @@
 module Api
   class UsersController < ApplicationController
     before_action :set_user, only: [:show, :edit, :update, :destroy, :finish_signup]
+    skip_before_action :authenticate_user_from_token!, only: [:create]
+    skip_before_action :authenticate_user!, only: [:create]
 
     def index
         @user = User.find_by(user_params)
@@ -40,6 +42,15 @@ module Api
         end
     end
 
+    def create
+        @user = User.new(user_create_params[:attributes])
+        if @user.save
+          render json: @user, serializer: ::Api::UserSerializer, root: :users
+        else
+          render :json => { :errors => @user.errors.full_messages }, :status => 422
+        end
+    end
+
     private
     def set_user
       @user = User.find(params[:id])
@@ -51,7 +62,11 @@ module Api
     end
 
     def user_auth_params
-      params.require(:user).permit(:email)
+      params.require(:user).permit(:email, :password)
+    end
+
+    def user_create_params
+      params.require(:data).permit(attributes: [:email, :password])
     end
   end
 end
