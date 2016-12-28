@@ -7,7 +7,11 @@ module Api
     def index
         @user = User.find_by(user_params)
 
-        render json: @user, serializer: ::Api::UserSerializer, root: :users
+        if @user
+          render json: @user, serializer: ::Api::UserSerializer, root: :users
+        else
+          render :json => { :errors => @user.errors.full_messages }, :status => 422
+        end
     end
 
 
@@ -57,7 +61,7 @@ module Api
     end
 
     def user_params
-      accessible = [ :id, :name, :email ] # extend with your own params
+      accessible = [ :authentication_token, :email ] # extend with your own params
       params.require(:filter).permit(accessible)
     end
 
