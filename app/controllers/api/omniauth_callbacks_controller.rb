@@ -16,7 +16,7 @@ module Api
       }
     end
 
-    [:twitter, :facebook].each do |provider|
+    [:twitter, :facebook, :google_oauth2].each do |provider|
       provides_callback_for provider
     end
 
@@ -26,6 +26,8 @@ module Api
       elsif resource.identity.provider == 'twitter'
         "#{ENV['STAT_STOP_URL']}/?code=#{resource.authentication_token},#{resource.email}"
       elsif resource.identity.provider == 'facebook'
+        "#{ENV['STAT_STOP_URL']}/?code=#{resource.authentication_token},#{resource.email}"
+      elsif resource.identity.provider == 'google_oauth2'
         "#{ENV['STAT_STOP_URL']}/?code=#{resource.authentication_token},#{resource.email}"
       else
         super resource
