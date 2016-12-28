@@ -16,7 +16,7 @@ module Api
       }
     end
 
-    [:twitter, :facebook, :google_oauth2].each do |provider|
+    [:twitter, :facebook, :google_oauth2, :github].each do |provider|
       provides_callback_for provider
     end
 
@@ -24,9 +24,9 @@ module Api
     end
 
     def after_sign_in_path_for(resource)
-      if resource.identity.provider == 'twitter' && !resource.email_verified?
+      if ['twitter', 'github'].include?(resource.identity.provider) && !resource.email_verified?
         finish_signup_path(resource)
-      elsif ['twitter', 'facebook', 'google_oauth2'].include?(resource.identity.provider)
+      elsif ['twitter', 'facebook', 'google_oauth2', 'github'].include?(resource.identity.provider)
         "#{ENV['STAT_STOP_URL']}/?code=#{resource.authentication_token},#{resource.email}"
       else
         super resource

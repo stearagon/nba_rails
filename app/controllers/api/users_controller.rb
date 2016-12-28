@@ -1,8 +1,8 @@
 module Api
   class UsersController < ApplicationController
     before_action :set_user, only: [:show, :edit, :update, :destroy, :finish_signup]
-    skip_before_action :authenticate_user_from_token!, only: [:create]
-    skip_before_action :authenticate_user!, only: [:create]
+    skip_before_action :authenticate_user_from_token!, only: [:create, :finish_signup]
+    skip_before_action :authenticate_user!, only: [:create, :finish_signup]
 
     def index
         @user = User.find_by(user_params)

@@ -34,7 +34,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
         :recoverable, :rememberable, :trackable, :validatable
 
-  devise :omniauthable, :omniauth_providers => [:facebook, :twitter, :google_oauth2]
+  devise :omniauthable, :omniauth_providers => [:facebook, :twitter, :google_oauth2, :github]
   before_save :ensure_authentication_token
 
   has_and_belongs_to_many :dashboards
