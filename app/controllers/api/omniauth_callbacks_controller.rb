@@ -20,14 +20,13 @@ module Api
       provides_callback_for provider
     end
 
+    def failure
+    end
+
     def after_sign_in_path_for(resource)
       if resource.identity.provider == 'twitter' && !resource.email_verified?
         finish_signup_path(resource)
-      elsif resource.identity.provider == 'twitter'
-        "#{ENV['STAT_STOP_URL']}/?code=#{resource.authentication_token},#{resource.email}"
-      elsif resource.identity.provider == 'facebook'
-        "#{ENV['STAT_STOP_URL']}/?code=#{resource.authentication_token},#{resource.email}"
-      elsif resource.identity.provider == 'google_oauth2'
+      elsif ['twitter', 'facebook', 'google_oauth2'].include?(resource.identity.provider)
         "#{ENV['STAT_STOP_URL']}/?code=#{resource.authentication_token},#{resource.email}"
       else
         super resource

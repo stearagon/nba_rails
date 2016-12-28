@@ -1,0 +1,13 @@
+<div class="authentication_failure">
+    <h1>Authentication Failed</h1>
+    <h2>Redirecting...</h2>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) { 
+        function redirect() {
+            window.location.href = "<%= ENV['STAT_STOP_URL'] %>/";
+        }
+        window.setTimeout(redirect, 1500);
+    });
+</script>
