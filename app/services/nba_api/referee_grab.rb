@@ -7,6 +7,7 @@ module NBAApi
     def get_referees
       games = Game.where(date: @date)
 
+      stats_data = []
       games.each do |game|
         if game.completed?
           GameReferee.where(game_id: game.nba_id).delete_all
@@ -26,7 +27,7 @@ module NBAApi
                 Referee.create(referee_data)
               end
 
-              GameReferee.create(game_id: game.nba_id, referee_id: referee_data[:nba_id])
+              stats_data << GameReferee.new(game_id: game.nba_id, referee_id: referee_data[:nba_id])
             end
             p "Successfully retrieved Game # #{game.nba_id} ref data"
           rescue
@@ -34,6 +35,7 @@ module NBAApi
           end
         end
       end
+       GameReferee.import(stats_data)
 
       return "Done"
     end

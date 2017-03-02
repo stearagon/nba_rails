@@ -8,6 +8,7 @@ module NBAApi
 
     def get_shot_charts
       games = Game.where(date: @date)
+      stats_data = []
 
       games.each do |game|
         if game.completed?
@@ -25,7 +26,7 @@ module NBAApi
               shot_chart_json['resultSets'][0]['rowSet'].each do |shot_chart|
                 shot_chart_data = grab_specific_shot_chart_data(shot_chart)
 
-                ShotChart.create(shot_chart_data)
+                stats_data << ShotChart.new(shot_chart_data)
               end
 
               p "Successfully retrieved Game # #{game.nba_id} shot charts"
@@ -35,6 +36,8 @@ module NBAApi
           end
         end
       end
+
+      ShotChart.import(stats_data)
 
       return "Done"
     end

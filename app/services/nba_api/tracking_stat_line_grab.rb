@@ -10,6 +10,7 @@ module NBAApi
       games = Game.where(date: @date)
 
       if games.present?
+        stats_data = []
         games.each do |game|
           if game.completed?
             TrackingStatLine.where(game_id: game.nba_id).delete_all
@@ -21,7 +22,7 @@ module NBAApi
 
               tracking_stat_line_json['resultSets'][0]['rowSet'].each do |tracking_stat_line|
                 tracking_stat_data = grab_specific_tracking_stat_line_data(tracking_stat_line)
-                TrackingStatLine.create(tracking_stat_data)
+                stats_data << TrackingStatLine.new(tracking_stat_data)
 
               end
 
@@ -31,6 +32,7 @@ module NBAApi
             end
           end
         end
+        TrackingStatLine.import(stats_data)
       end
 
       return "Done"

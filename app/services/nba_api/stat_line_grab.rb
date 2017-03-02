@@ -7,9 +7,11 @@ module NBAApi
     end
 
     def get_stat_lines
+      start_time = Time.now
       games = Game.where(date: @date)
 
       if games.present?
+        stat_datas = []
         games.each do |game|
           if game.completed?
             StatLine.where(game_id: game.nba_id).delete_all
@@ -21,7 +23,7 @@ module NBAApi
 
               stat_line_json['resultSets'][0]['rowSet'].each do |stat_line|
                 stat_data = grab_specific_stat_line_data(stat_line)
-                StatLine.create(stat_data)
+                stat_datas << StatLine.new(stat_data)
               end
 
               p "Successfully retrieved Game # #{game.nba_id} stat lines"
@@ -30,9 +32,12 @@ module NBAApi
             end
           end
         end
-      end
 
-      return "Done"
+        StatLine.import(stat_datas)
+        end_time = Time.now
+        p end_time - start_time
+        return "Done"
+      end
     end
 
     def get_quarter_starters(quarter, game)

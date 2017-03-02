@@ -9,6 +9,7 @@ module NBAApi
     def get_advanced_stat_lines
       games = Game.where(date: @date)
 
+      stats_datas = []
       games.each do |game|
         if game.completed?
           AdvancedStatLine.where(game_id: game.nba_id).delete_all
@@ -21,7 +22,7 @@ module NBAApi
             advanced_stat_line_json['resultSets'][0]['rowSet'].each do |advanced_stat_line|
               advanced_stat_data = grab_specific_advanced_stat_line_data(advanced_stat_line)
 
-              AdvancedStatLine.create(advanced_stat_data)
+              stats_datas << AdvancedStatLine.new(advanced_stat_data)
             end
 
             p "Successfully retrieved Game # #{game.nba_id} advanced stat lines"
@@ -30,6 +31,8 @@ module NBAApi
           end
         end
       end
+
+      AdvancedStatLine.import(stats_datas)
 
       return "Done"
     end

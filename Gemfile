@@ -23,6 +23,7 @@ gem 'omniauth-twitter'
 gem 'omniauth-facebook'
 gem 'omniauth-google-oauth2'
 gem 'omniauth-github'
+gem 'activerecord-import'
 
 group :development, :test do
   gem 'byebug'
