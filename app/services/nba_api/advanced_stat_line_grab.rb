@@ -10,16 +10,23 @@ module NBAApi
       games = Game.where(date: @date)
 
       games.each do |game|
-        advanced_stat_line_json = HTTP.get(link_builder(game.nba_id)).parse
+        if game.completed?
+          AdvancedStatLine.where(game_id: game.nba_id).delete_all
 
-        advanced_stat_line_json['resultSets'][0]['rowSet'].each do |advanced_stat_line|
-          advanced_stat_data = grab_specific_advanced_stat_line_data(advanced_stat_line)
-          old_advanced_stat_line = AdvancedStatLine.find_by(game_id: advanced_stat_data[:game_id], player_id: advanced_stat_data[:player_id])
+          p "Starting to get advanced stat lines for game ##{game.nba_id}"
 
-          if old_advanced_stat_line
-              old_advanced_stat_line.update(advanced_stat_data)
-          else
-            AdvancedStatLine.create(advanced_stat_data)
+          begin
+            advanced_stat_line_json = HTTP.get(link_builder(game.nba_id)).parse
+
+            advanced_stat_line_json['resultSets'][0]['rowSet'].each do |advanced_stat_line|
+              advanced_stat_data = grab_specific_advanced_stat_line_data(advanced_stat_line)
+
+              AdvancedStatLine.create(advanced_stat_data)
+            end
+
+            p "Successfully retrieved Game # #{game.nba_id} advanced stat lines"
+          rescue
+            p "Failed retrieving Game ##{game.nba_id} advanced stat lines"
           end
         end
       end

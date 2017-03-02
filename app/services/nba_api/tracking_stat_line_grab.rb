@@ -9,17 +9,25 @@ module NBAApi
     def get_tracking_stat_lines
       games = Game.where(date: @date)
 
-      if games
+      if games.present?
         games.each do |game|
-          tracking_stat_line_json = HTTP.get(link_builder(game.nba_id)).parse
+          if game.completed?
+            TrackingStatLine.where(game_id: game.nba_id).delete_all
 
-          tracking_stat_line_json['resultSets'][0]['rowSet'].each do |tracking_stat_line|
-            tracking_stat_data = grab_specific_tracking_stat_line_data(tracking_stat_line)
-            old_tracking_stat_line = TrackingStatLine.find_by(game_id: tracking_stat_data[:game_id], player_id: tracking_stat_data[:player_id])
-            if old_tracking_stat_line
-                old_tracking_stat_line.update(tracking_stat_data)
-            else
-              TrackingStatLine.create(tracking_stat_data)
+            p "Starting to get traking stat lines for game##{game.nba_id}"
+
+            begin
+              tracking_stat_line_json = HTTP.get(link_builder(game.nba_id)).parse
+
+              tracking_stat_line_json['resultSets'][0]['rowSet'].each do |tracking_stat_line|
+                tracking_stat_data = grab_specific_tracking_stat_line_data(tracking_stat_line)
+                TrackingStatLine.create(tracking_stat_data)
+
+              end
+
+              p "Successfully retrieved Game # #{game.nba_id} tracking stat lines"
+            rescue
+              p "Failed retrieving Game ##{game.nba_id} tracking stat lines"
             end
           end
         end

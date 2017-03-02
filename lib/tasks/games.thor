@@ -28,21 +28,26 @@ class Games < Thor
     start, endd, season = parsed_dates(start_date, end_date)
 
     (start..endd).each do |date|
+      p "started stat lines for #{date}"
       ::NBAApi::StatLineGrab.new(date, season, 'Regular+Season').get_stat_lines
       p "updated stat lines for #{date}"
 
+      p "started tracking stat lines for #{date}"
       ::NBAApi::TrackingStatLineGrab.new(date, season, 'Regular+Season').get_tracking_stat_lines
       p "updated tracking stat lines for #{date}"
 
+      p "started advanced stat lines for #{date}"
       ::NBAApi::AdvancedStatLineGrab.new(date, season, 'Regular+Season').get_advanced_stat_lines
       p "updated advanced stat lines for #{date}"
 
+      p "started refs for #{date}"
       ::NBAApi::RefereeGrab.new(date).get_referees
       p "updated refs for #{date}"
 
-      # shot_chart_season = ::Helpers::SeasonHelper.season_finder(date) */
-      # ::NBAApi::ShotChartGrab.new(date, shot_chart_season, 'Regular+Season').get_shot_charts */
-      # p "updated shot charts for #{date}" */
+      p "started shot charts for #{date}"
+      shot_chart_season = ::Helpers::SeasonHelper.season_finder(date)
+      ::NBAApi::ShotChartGrab.new(date, shot_chart_season, 'Regular+Season').get_shot_charts
+      p "updated shot charts for #{date}"
     end
   end
 

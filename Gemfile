@@ -24,10 +24,6 @@ gem 'omniauth-facebook'
 gem 'omniauth-google-oauth2'
 gem 'omniauth-github'
 
-group :production do
-    gem 'rails_12factor'
-end
-
 group :development, :test do
   gem 'byebug'
   gem 'better_errors'

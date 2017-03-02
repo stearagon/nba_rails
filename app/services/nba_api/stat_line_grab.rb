@@ -11,16 +11,22 @@ module NBAApi
 
       if games.present?
         games.each do |game|
-          stat_line_json = HTTP.get(link_builder(game.nba_id)).parse
+          if game.completed?
+            StatLine.where(game_id: game.nba_id).delete_all
 
-          stat_line_json['resultSets'][0]['rowSet'].each do |stat_line|
-            stat_data = grab_specific_stat_line_data(stat_line)
-            old_stat_line = StatLine.find_by(game_id: stat_data[:game_id], player_id: stat_data[:player_id])
+            p "Starting to get stat lines for game ##{game.nba_id}"
 
-            if old_stat_line
-                old_stat_line.update(stat_data)
-            else
+            begin
+              stat_line_json = HTTP.get(link_builder(game.nba_id)).parse
+
+              stat_line_json['resultSets'][0]['rowSet'].each do |stat_line|
+                stat_data = grab_specific_stat_line_data(stat_line)
                 StatLine.create(stat_data)
+              end
+
+              p "Successfully retrieved Game # #{game.nba_id} stat lines"
+            rescue
+              p "Failed retrieving Game ##{game.nba_id} stat lines"
             end
           end
         end

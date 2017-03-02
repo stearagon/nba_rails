@@ -11,25 +11,26 @@ module NBAApi
 
       games.each do |game|
         if game.completed?
+          ShotChart.where(game_id: game.nba_id).delete_all
+
+          p "Starting to get shot charts for game ##{game.nba_id}"
+
           game.stat_lines.each do |stat_line|
             player = stat_line.player
             team = stat_line.team
 
-            shot_chart_json = HTTP.get(link_builder(player, game, stat_line)).parse
+            begin
+              shot_chart_json = HTTP.get(link_builder(player, game, stat_line)).parse
 
-            shot_chart_json['resultSets'][0]['rowSet'].each do |shot_chart|
-              # purge for game if going through process. Takes too long to load each
-              # ShotChart each time
-              shot_chart_data = grab_specific_shot_chart_data(shot_chart)
-              new_shot_chart = ShotChart.find_by(game_id: shot_chart_data[:nba_game_id],
-                player_id: player.nba_id, period: shot_chart_data[:period],
-                minutes_left: shot_chart_data[:minutes_left], seconds_left: shot_chart_data[:seconds_left])
+              shot_chart_json['resultSets'][0]['rowSet'].each do |shot_chart|
+                shot_chart_data = grab_specific_shot_chart_data(shot_chart)
 
-              if new_shot_chart
-                new_shot_chart.update(shot_chart_data)
-              else
                 ShotChart.create(shot_chart_data)
               end
+
+              p "Successfully retrieved Game # #{game.nba_id} shot charts"
+            rescue
+              p "Failed retrieving Game ##{game.nba_id} shot charts"
             end
           end
         end
