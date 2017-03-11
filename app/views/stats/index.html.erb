@@ -22,7 +22,7 @@
   }
 </script>
 
-<%= form_tag("/", method: "get") do %>
+<%= form_tag("/stats", method: "get") do %>
 <label>Teams Playing on:
   <%= date_field(:game_dates, :begin_date, value: @game_start_date) %>
   <%= date_field(:game_dates, :end_date, value: @game_end_date) %>
@@ -113,14 +113,14 @@
         <td><%= game.rests[:away_team] %></td>
         <td><%= game.games_in_5_days[:away_team] %></td>
         <td><%= game.games_in_10_days[:away_team] %></td>
-        <% away_possessions_per_minute = @team_possessions[game.away_team.nba_team_id] / 48 %>
-        <% away_points_per_possession = @points_per_possession[game.away_team.nba_team_id] %>
-        <% away_points_per_possession_allowed = @points_per_possession_allowed[game.away_team.nba_team_id] %>
+        <% away_possessions_per_minute = @team_possessions[game.away_team.nba_id] / 48 %>
+        <% away_points_per_possession = @points_per_possession[game.away_team.nba_id] %>
+        <% away_points_per_possession_allowed = @points_per_possession_allowed[game.away_team.nba_id] %>
 
         <td><%= (away_points_per_possession * 100).round(1) %></td>
         <td><%= (away_points_per_possession_allowed * 100).round(1) %></td>
         <td><%= ((away_points_per_possession - away_points_per_possession_allowed) * 100).round(1) %></td>
-        <% stats = TeamCustomStat.new(start_date: @history_start_date, end_date: @history_end_date, team_id: game.away_team.nba_team_id) %>
+        <% stats = StatCalculators::TeamCustomStat.new(start_date: @history_start_date, end_date: @history_end_date, team_id: game.away_team.nba_id) %>
 
         <% allowed_for_all_games = stats.team_points_per_possession_allowed %>
 
@@ -145,10 +145,10 @@
         <% away_ppp_allowed_10_days = stats.team_points_per_possession_allowed if !stats.team_points_per_possession_allowed.nil? %>
 
         <td class="<%= game.away_team.mascot %>-away-ppm-average" value="<%= away_possessions_per_minute %>"><%= away_possessions_per_minute.round(3) %></td>
-        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppm')" class="<%= game.away_team.mascot %>-away-ppm" value="<%= ((@team_possessions[game.away_team.nba_team_id] / 48) - away_ppm_away).round(2) if !away_ppm_away.nil? %>" /></td>
-        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppm')" class="<%= game.away_team.mascot %>-away-ppm-rest" value="<%= ((@team_possessions[game.away_team.nba_team_id] / 48) - away_ppm_days_rest).round(2) if !away_ppm_days_rest.nil? %>" /></td>
-        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppm')" class="<%= game.away_team.mascot %>-away-ppm-5d" value="<%= ((@team_possessions[game.away_team.nba_team_id] / 48) - away_ppm_5_days).round(2) if !away_ppm_5_days.nil? %>" /></td>
-        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppm')" class="<%= game.away_team.mascot %>-away-ppm-10d" value="<%= ((@team_possessions[game.away_team.nba_team_id] / 48) - away_ppm_10_days).round(2) if !away_ppm_10_days.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppm')" class="<%= game.away_team.mascot %>-away-ppm" value="<%= ((@team_possessions[game.away_team.nba_id] / 48) - away_ppm_away).round(2) if !away_ppm_away.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppm')" class="<%= game.away_team.mascot %>-away-ppm-rest" value="<%= ((@team_possessions[game.away_team.nba_id] / 48) - away_ppm_days_rest).round(2) if !away_ppm_days_rest.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppm')" class="<%= game.away_team.mascot %>-away-ppm-5d" value="<%= ((@team_possessions[game.away_team.nba_id] / 48) - away_ppm_5_days).round(2) if !away_ppm_5_days.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppm')" class="<%= game.away_team.mascot %>-away-ppm-10d" value="<%= ((@team_possessions[game.away_team.nba_id] / 48) - away_ppm_10_days).round(2) if !away_ppm_10_days.nil? %>" /></td>
         <td><input class="<%= game.away_team.mascot %>-away-sum-ppm"></td>
 
         <script type="text/javascript">
@@ -156,10 +156,10 @@
         </script>
 
         <td class="<%= game.away_team.mascot %>-away-ppp-average" value="<%= away_points_per_possession %>"><%= away_points_per_possession.round(3) %></td>
-        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppp')" class="<%= game.away_team.mascot %>-away-ppp" value="<%= (@points_per_possession[game.away_team.nba_team_id] - away_ppp_away).round(2) if !away_ppp_away.nil? %>" /></td>
-        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppp')" class="<%= game.away_team.mascot %>-away-ppp-rest" value="<%= (@points_per_possession[game.away_team.nba_team_id] - away_ppp_days_rest).round(2) if !away_ppp_days_rest.nil? %>" /></td>
-        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppp')" class="<%= game.away_team.mascot %>-away-ppp-5d" value="<%= (@points_per_possession[game.away_team.nba_team_id] - away_ppp_5_days).round(2) if !away_ppp_5_days.nil? %>" /></td>
-        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppp')" class="<%= game.away_team.mascot %>-away-ppp-10d" value="<%= (@points_per_possession[game.away_team.nba_team_id] - away_ppp_10_days).round(2) if !away_ppp_10_days.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppp')" class="<%= game.away_team.mascot %>-away-ppp" value="<%= (@points_per_possession[game.away_team.nba_id] - away_ppp_away).round(2) if !away_ppp_away.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppp')" class="<%= game.away_team.mascot %>-away-ppp-rest" value="<%= (@points_per_possession[game.away_team.nba_id] - away_ppp_days_rest).round(2) if !away_ppp_days_rest.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppp')" class="<%= game.away_team.mascot %>-away-ppp-5d" value="<%= (@points_per_possession[game.away_team.nba_id] - away_ppp_5_days).round(2) if !away_ppp_5_days.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.away_team.mascot %>', 'away', 'ppp')" class="<%= game.away_team.mascot %>-away-ppp-10d" value="<%= (@points_per_possession[game.away_team.nba_id] - away_ppp_10_days).round(2) if !away_ppp_10_days.nil? %>" /></td>
         <td><input class="<%= game.away_team.mascot %>-away-sum-ppp"></td>
 
         <script type="text/javascript">
@@ -187,14 +187,14 @@
         <td><%= game.rests[:home_team] %></td>
         <td><%= game.games_in_5_days[:home_team] %></td>
         <td><%= game.games_in_10_days[:home_team] %></td>
-        <% home_possessions_per_minute = @team_possessions[game.home_team.nba_team_id] / 48 %>
-        <% home_points_per_possession = @points_per_possession[game.home_team.nba_team_id] %>
-        <% home_points_per_possession_allowed = @points_per_possession_allowed[game.home_team.nba_team_id] %>
+        <% home_possessions_per_minute = @team_possessions[game.home_team.nba_id] / 48 %>
+        <% home_points_per_possession = @points_per_possession[game.home_team.nba_id] %>
+        <% home_points_per_possession_allowed = @points_per_possession_allowed[game.home_team.nba_id] %>
 
         <td><%= (home_points_per_possession * 100).round(1) %></td>
         <td><%= (home_points_per_possession_allowed * 100).round(1) %></td>
         <td><%= ((home_points_per_possession - home_points_per_possession_allowed) * 100).round(1) %></td>
-        <% stats = TeamCustomStat.new(start_date: @history_start_date, end_date: @history_end_date, team_id: game.home_team.nba_team_id) %>
+        <% stats = StatCalculators::TeamCustomStat.new(start_date: @history_start_date, end_date: @history_end_date, team_id: game.home_team.nba_id) %>
 
         <% allowed_for_all_games = stats.team_points_per_possession_allowed %>
 
@@ -219,10 +219,10 @@
         <% home_ppp_allowed_10_days = stats.team_points_per_possession_allowed if !stats.team_points_per_possession_allowed.nil? %>
 
         <td class="<%= game.home_team.mascot %>-home-ppm-average" value="<%= home_possessions_per_minute %>"><%= home_possessions_per_minute.round(3) %></td>
-        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppm')" class="<%= game.home_team.mascot %>-home-ppm" value="<%= ((@team_possessions[game.home_team.nba_team_id] / 48) - home_ppm_home).round(2) if !home_ppm_home.nil? %>" /></td>
-        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppm')" class="<%= game.home_team.mascot %>-home-ppm-rest" value="<%= ((@team_possessions[game.home_team.nba_team_id] / 48) - home_ppm_days_rest).round(2) if !home_ppm_days_rest.nil? %>" /></td>
-        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppm')" class="<%= game.home_team.mascot %>-home-ppm-5d" value="<%= ((@team_possessions[game.home_team.nba_team_id] / 48) - home_ppm_5_days).round(2) if !home_ppm_5_days.nil? %>" /></td>
-        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppm')" class="<%= game.home_team.mascot %>-home-ppm-10d" value="<%= ((@team_possessions[game.home_team.nba_team_id] / 48) - home_ppm_10_days).round(2) if !home_ppm_10_days.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppm')" class="<%= game.home_team.mascot %>-home-ppm" value="<%= ((@team_possessions[game.home_team.nba_id] / 48) - home_ppm_home).round(2) if !home_ppm_home.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppm')" class="<%= game.home_team.mascot %>-home-ppm-rest" value="<%= ((@team_possessions[game.home_team.nba_id] / 48) - home_ppm_days_rest).round(2) if !home_ppm_days_rest.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppm')" class="<%= game.home_team.mascot %>-home-ppm-5d" value="<%= ((@team_possessions[game.home_team.nba_id] / 48) - home_ppm_5_days).round(2) if !home_ppm_5_days.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppm')" class="<%= game.home_team.mascot %>-home-ppm-10d" value="<%= ((@team_possessions[game.home_team.nba_id] / 48) - home_ppm_10_days).round(2) if !home_ppm_10_days.nil? %>" /></td>
         <td><input class="<%= game.home_team.mascot %>-home-sum-ppm"></td>
 
         <script type="text/javascript">
@@ -230,10 +230,10 @@
         </script>
 
         <td class="<%= game.home_team.mascot %>-home-ppp-average" value="<%= home_points_per_possession %>"><%= home_points_per_possession.round(3) %></td>
-        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppp')" class="<%= game.home_team.mascot %>-home-ppp" value="<%= (@points_per_possession[game.home_team.nba_team_id] - home_ppp_home).round(2) if !home_ppp_home.nil? %>" /></td>
-        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppp')" class="<%= game.home_team.mascot %>-home-ppp-rest" value="<%= (@points_per_possession[game.home_team.nba_team_id] - home_ppp_days_rest).round(2) if !home_ppp_days_rest.nil? %>" /></td>
-        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppp')" class="<%= game.home_team.mascot %>-home-ppp-5d" value="<%= (@points_per_possession[game.home_team.nba_team_id] - home_ppp_5_days).round(2) if !home_ppp_5_days.nil? %>" /></td>
-        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppp')" class="<%= game.home_team.mascot %>-home-ppp-10d" value="<%= (@points_per_possession[game.home_team.nba_team_id] - home_ppp_10_days).round(2) if !home_ppp_10_days.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppp')" class="<%= game.home_team.mascot %>-home-ppp" value="<%= (@points_per_possession[game.home_team.nba_id] - home_ppp_home).round(2) if !home_ppp_home.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppp')" class="<%= game.home_team.mascot %>-home-ppp-rest" value="<%= (@points_per_possession[game.home_team.nba_id] - home_ppp_days_rest).round(2) if !home_ppp_days_rest.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppp')" class="<%= game.home_team.mascot %>-home-ppp-5d" value="<%= (@points_per_possession[game.home_team.nba_id] - home_ppp_5_days).round(2) if !home_ppp_5_days.nil? %>" /></td>
+        <td><input type="text" onblur="calculate('<%= game.home_team.mascot %>', 'home', 'ppp')" class="<%= game.home_team.mascot %>-home-ppp-10d" value="<%= (@points_per_possession[game.home_team.nba_id] - home_ppp_10_days).round(2) if !home_ppp_10_days.nil? %>" /></td>
         <td><input class="<%= game.home_team.mascot %>-home-sum-ppp"></td>
 
         <script type="text/javascript">

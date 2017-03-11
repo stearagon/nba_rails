@@ -8,7 +8,7 @@ class StatsController < ApplicationController
 
       @games = Game.includes(:home_team, :away_team).where(:date => @game_start_date..@game_end_date)
 
-      team_stats = TeamStatsAnalysis.new({
+      team_stats = StatCalculators::TeamStatsAnalysis.new({
                 start_date: @history_start_date,
                 end_date: @history_end_date})
 

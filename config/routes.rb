@@ -6,6 +6,8 @@ Rails.application.routes.draw do
 
     match '/users/:id/finish_signup' => 'api/users#finish_signup', via: [:get, :patch], :as => :finish_signup
 
+    resources :stats, only: :index
+
     namespace :api do
         resources :players, only: :index
         resources :stat_lines, only: :index

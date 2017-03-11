@@ -7,7 +7,9 @@ module StatCalculators
             @start_date = params[:start_date]
             @end_date = params[:end_date]
             @team_id = params[:team_id]
-            @number_of_games = params[:number_of_games]
+            # @number_of_games = params[:number_of_games]
+            self.games_by_dates
+            self.game_stats
         end
 
         def get_possessions_by_games
@@ -15,8 +17,8 @@ module StatCalculators
         end
 
         def games_by_number
-            Game
-                .includes(:stat_lines)
+            Game.includes(:stat_lines)
+                .where(completed?: true)
                 .where(
                     "(home_team_id = ? OR away_team_id = ?)",
                     @team_id,
@@ -32,6 +34,7 @@ module StatCalculators
         def games_by_dates
             @games = Game
                 .includes(:stat_lines)
+                .where(completed?: true)
                 .where(
                     "(home_team_id = ? OR away_team_id = ?) AND (date BETWEEN ? AND ?)",
                     @team_id,
@@ -74,32 +77,32 @@ module StatCalculators
             game_stats = {}
 
             @games_filtered.each do |game|
-            game_stats["#{game.nba_game_id}"] = Hash.new
-            game_stats["#{game.nba_game_id}"]["home"] = Hash.new(0)
-            game_stats["#{game.nba_game_id}"]["away"] = Hash.new(0)
+            game_stats["#{game.nba_id}"] = Hash.new
+            game_stats["#{game.nba_id}"]["home"] = Hash.new(0)
+            game_stats["#{game.nba_id}"]["away"] = Hash.new(0)
 
             game.played_stat_lines.each do |stat_lines|
-                game_stats["#{stat_lines.nba_game_id}"]["home"]["fga"] += stat_lines.fga if stat_lines.nba_team_id == game.home_team_id && !stat_lines.fga.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["home"]["fgm"] += stat_lines.fgm if stat_lines.nba_team_id == game.home_team_id && !stat_lines.fgm.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["home"]["fg3a"] += stat_lines.fg3a if stat_lines.nba_team_id == game.home_team_id && !stat_lines.fg3a.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["home"]["fg3m"] += stat_lines.fg3m if stat_lines.nba_team_id == game.home_team_id && !stat_lines.fg3m.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["home"]["fta"] += stat_lines.fta if stat_lines.nba_team_id == game.home_team_id && !stat_lines.fta.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["home"]["ftm"] += stat_lines.ftm if stat_lines.nba_team_id == game.home_team_id && !stat_lines.ftm.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["home"]["oreb"] += stat_lines.oreb if stat_lines.nba_team_id == game.home_team_id && !stat_lines.oreb.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["home"]["dreb"] += stat_lines.dreb if stat_lines.nba_team_id == game.home_team_id && !stat_lines.dreb.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["home"]["to"] += stat_lines.to if stat_lines.nba_team_id == game.home_team_id && !stat_lines.to.nil?
-                game_stats["#{stat_lines.nba_game_id}"][:home_team_id] = game.home_team_id
+                game_stats["#{stat_lines.game_id}"]["home"]["fga"] += stat_lines.fga if stat_lines.team_id == game.home_team_id && !stat_lines.fga.nil?
+                game_stats["#{stat_lines.game_id}"]["home"]["fgm"] += stat_lines.fgm if stat_lines.team_id == game.home_team_id && !stat_lines.fgm.nil?
+                game_stats["#{stat_lines.game_id}"]["home"]["fg3a"] += stat_lines.fg3a if stat_lines.team_id == game.home_team_id && !stat_lines.fg3a.nil?
+                game_stats["#{stat_lines.game_id}"]["home"]["fg3m"] += stat_lines.fg3m if stat_lines.team_id == game.home_team_id && !stat_lines.fg3m.nil?
+                game_stats["#{stat_lines.game_id}"]["home"]["fta"] += stat_lines.fta if stat_lines.team_id == game.home_team_id && !stat_lines.fta.nil?
+                game_stats["#{stat_lines.game_id}"]["home"]["ftm"] += stat_lines.ftm if stat_lines.team_id == game.home_team_id && !stat_lines.ftm.nil?
+                game_stats["#{stat_lines.game_id}"]["home"]["oreb"] += stat_lines.oreb if stat_lines.team_id == game.home_team_id && !stat_lines.oreb.nil?
+                game_stats["#{stat_lines.game_id}"]["home"]["dreb"] += stat_lines.dreb if stat_lines.team_id == game.home_team_id && !stat_lines.dreb.nil?
+                game_stats["#{stat_lines.game_id}"]["home"]["to"] += stat_lines.to if stat_lines.team_id == game.home_team_id && !stat_lines.to.nil?
+                game_stats["#{stat_lines.game_id}"][:home_team_id] = game.home_team_id
 
-                game_stats["#{stat_lines.nba_game_id}"]["away"]["fga"] += stat_lines.fga if stat_lines.nba_team_id == game.away_team_id && !stat_lines.fga.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["away"]["fgm"] += stat_lines.fgm if stat_lines.nba_team_id == game.away_team_id && !stat_lines.fgm.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["away"]["fg3a"] += stat_lines.fg3a if stat_lines.nba_team_id == game.away_team_id && !stat_lines.fg3a.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["away"]["fg3m"] += stat_lines.fg3m if stat_lines.nba_team_id == game.away_team_id && !stat_lines.fg3m.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["away"]["fta"] += stat_lines.fta if stat_lines.nba_team_id == game.away_team_id && !stat_lines.fta.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["away"]["ftm"] += stat_lines.ftm if stat_lines.nba_team_id == game.away_team_id && !stat_lines.ftm.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["away"]["oreb"] += stat_lines.oreb if stat_lines.nba_team_id == game.away_team_id && !stat_lines.oreb.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["away"]["dreb"] += stat_lines.dreb if stat_lines.nba_team_id == game.away_team_id && !stat_lines.dreb.nil?
-                game_stats["#{stat_lines.nba_game_id}"]["away"]["to"] += stat_lines.to if stat_lines.nba_team_id == game.away_team_id && !stat_lines.to.nil?
-                game_stats["#{stat_lines.nba_game_id}"][:away_team_id] = game.away_team_id
+                game_stats["#{stat_lines.game_id}"]["away"]["fga"] += stat_lines.fga if stat_lines.team_id == game.away_team_id && !stat_lines.fga.nil?
+                game_stats["#{stat_lines.game_id}"]["away"]["fgm"] += stat_lines.fgm if stat_lines.team_id == game.away_team_id && !stat_lines.fgm.nil?
+                game_stats["#{stat_lines.game_id}"]["away"]["fg3a"] += stat_lines.fg3a if stat_lines.team_id == game.away_team_id && !stat_lines.fg3a.nil?
+                game_stats["#{stat_lines.game_id}"]["away"]["fg3m"] += stat_lines.fg3m if stat_lines.team_id == game.away_team_id && !stat_lines.fg3m.nil?
+                game_stats["#{stat_lines.game_id}"]["away"]["fta"] += stat_lines.fta if stat_lines.team_id == game.away_team_id && !stat_lines.fta.nil?
+                game_stats["#{stat_lines.game_id}"]["away"]["ftm"] += stat_lines.ftm if stat_lines.team_id == game.away_team_id && !stat_lines.ftm.nil?
+                game_stats["#{stat_lines.game_id}"]["away"]["oreb"] += stat_lines.oreb if stat_lines.team_id == game.away_team_id && !stat_lines.oreb.nil?
+                game_stats["#{stat_lines.game_id}"]["away"]["dreb"] += stat_lines.dreb if stat_lines.team_id == game.away_team_id && !stat_lines.dreb.nil?
+                game_stats["#{stat_lines.game_id}"]["away"]["to"] += stat_lines.to if stat_lines.team_id == game.away_team_id && !stat_lines.to.nil?
+                game_stats["#{stat_lines.game_id}"][:away_team_id] = game.away_team_id
             end
             end
 
@@ -132,7 +135,7 @@ module StatCalculators
         def team_total_possessions
             if !@games_filtered.empty?
             total_possessions = @games_filtered.map do |game|
-                game_by_game_possessions[game.nba_game_id].values.inject(:+) / 2.0
+                game_by_game_possessions[game.nba_id].values.inject(:+) / 2.0
             end.inject(:+)
             end
 
@@ -141,9 +144,9 @@ module StatCalculators
 
         def team_total_points
             if !@games_filtered.empty?
-            total_points = @games_filtered.map do |game|
-                game_by_game_points[game.nba_game_id][@team_id]
-            end.inject(:+)
+              total_points = @games_filtered.map do |game|
+                  game_by_game_points[game.nba_id][@team_id]
+              end.inject(:+)
             end
 
             total_points
@@ -151,9 +154,9 @@ module StatCalculators
 
         def team_total_points_allowed
             if !@games_filtered.empty?
-            total_points_allowed = @games_filtered.map do |game|
-                game_by_game_points[game.nba_game_id].values.inject(:+) - game_by_game_points[game.nba_game_id][@team_id]
-            end.inject(:+)
+              total_points_allowed = @games_filtered.map do |game|
+                  game_by_game_points[game.nba_id].values.inject(:+) - game_by_game_points[game.nba_id][@team_id]
+              end.inject(:+)
             end
 
             total_points_allowed
