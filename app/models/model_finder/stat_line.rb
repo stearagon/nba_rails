@@ -59,84 +59,8 @@ module ModelFinder
     end
 
     def data_name(scope, params)
-      if params[:data_name] == 'points_per_game'
-        scope
-          .select("(((SUM(stat_lines.fgm) - SUM(stat_lines.fg3m)) * 2)
-            + (SUM(stat_lines.fg3m) * 3)
-            + (SUM(stat_lines.ftm) * 1)) as value")
-      elsif params[:data_name] == 'allowed_total_points'
-        scope
-          .joins("LEFT JOIN (
-              SELECT ((SUM(inner_sl.fgm) - SUM(inner_sl.fg3m)) * 2
-              + (SUM(inner_sl.fg3m) * 3)
-              + (SUM(inner_sl.ftm) * 1)) as points,
-                inner_sl.game_id,
-                inner_sl.team_id
-              FROM stat_lines AS inner_sl
-              GROUP BY inner_sl.game_id,
-                inner_sl.team_id) AS opp
-              ON opp.game_id = games.nba_id
-                AND opp.team_id != teams.nba_id")
-          .group("opp.points")
-          .select("opp.points AS value")
-      elsif params[:data_name] == 'possessions_per_game'
-        scope
-          .joins("LEFT JOIN (
-              SELECT SUM(inner_sl.dreb) AS dreb,
-                inner_sl.game_id,
-                inner_sl.team_id
-              FROM stat_lines AS inner_sl
-              GROUP BY inner_sl.game_id,
-                inner_sl.team_id) AS opp
-              ON opp.game_id = games.nba_id
-                AND opp.team_id != teams.nba_id")
-          .group("opp.dreb")
-          .select("SUM(stat_lines.fga)
-            + (0.4 * SUM(stat_lines.fta))
-            - 1.07 * (SUM(stat_lines.oreb) / round((SUM(stat_lines.oreb) + opp.dreb), 2))
-            * (SUM(stat_lines.fga) - SUM(stat_lines.fgm))
-            + SUM(stat_lines.to) as value")
-      elsif params[:data_name] == 'points_per_possession'
-        scope
-          .joins("LEFT JOIN (
-              SELECT SUM(inner_sl.dreb) AS dreb,
-                inner_sl.game_id,
-                inner_sl.team_id
-              FROM stat_lines AS inner_sl
-              GROUP BY inner_sl.game_id,
-                inner_sl.team_id) AS opp
-              ON opp.game_id = games.nba_id
-                AND opp.team_id != teams.nba_id")
-          .group("opp.dreb")
-          .select("((((SUM(stat_lines.fgm) - SUM(stat_lines.fg3m)) * 2)
-            + (SUM(stat_lines.fg3m) * 3)
-            + (SUM(stat_lines.ftm) * 1)) /  (SUM(stat_lines.fga)
-            + (0.4 * SUM(stat_lines.fta))
-            - 1.07 * (SUM(stat_lines.oreb) / round((SUM(stat_lines.oreb) + opp.dreb), 2))
-            * (SUM(stat_lines.fga) - SUM(stat_lines.fgm))
-            + SUM(stat_lines.to))) AS value")
-      elsif params[:data_name] == 'allowed_points_per_possession'
-        scope
-          .joins("LEFT JOIN (
-              SELECT SUM(inner_sl.dreb) AS dreb,
-                SUM(inner_sl.fgm) AS fgm,
-                SUM(inner_sl.fg3m) AS fg3m,
-                SUM(inner_sl.ftm) AS ftm,
-                inner_sl.game_id,
-                inner_sl.team_id
-              FROM stat_lines AS inner_sl
-              GROUP BY inner_sl.game_id,
-                inner_sl.team_id) AS opp
-              ON opp.game_id = games.nba_id
-                AND opp.team_id != teams.nba_id")
-          .group("opp.dreb, opp.fgm, opp.ftm, opp.fg3m")
-          .select("((((opp.fgm - opp.fg3m) * 2)
-            + (opp.fg3m * 3)
-            + (opp.ftm * 1)) /  (SUM(stat_lines.fga)
-            + (0.4 * SUM(stat_lines.fta))
-            - 1.07 * (SUM(stat_lines.oreb) / round((SUM(stat_lines.oreb) + opp.dreb), 2))
-            * (SUM(stat_lines.fga) - SUM(stat_lines.fgm))
-            + SUM(stat_lines.to))) AS value")
+      if params[:data_name]
+        send(params[:data_name], scope)
       else
         scope
       end
@@ -164,8 +88,98 @@ module ModelFinder
           "%#{params[team]}%")
     end
 
+    private
+
     def searchable_params
       %i(name team team_ids data_name period)
+    end
+
+    def points_per_game(scope)
+        scope
+          .select("(((SUM(stat_lines.fgm) - SUM(stat_lines.fg3m)) * 2)
+            + (SUM(stat_lines.fg3m) * 3)
+            + (SUM(stat_lines.ftm) * 1)) as value")
+    end
+
+    def allowed_total_points(scope)
+        scope
+          .joins("LEFT JOIN (
+              SELECT ((SUM(inner_sl.fgm) - SUM(inner_sl.fg3m)) * 2
+              + (SUM(inner_sl.fg3m) * 3)
+              + (SUM(inner_sl.ftm) * 1)) as points,
+                inner_sl.game_id,
+                inner_sl.team_id
+              FROM stat_lines AS inner_sl
+              GROUP BY inner_sl.game_id,
+                inner_sl.team_id) AS opp
+              ON opp.game_id = games.nba_id
+                AND opp.team_id != teams.nba_id")
+          .group("opp.points")
+          .select("opp.points AS value")
+    end
+
+    def possessions_per_game(scope)
+        scope
+          .joins("LEFT JOIN (
+              SELECT SUM(inner_sl.dreb) AS dreb,
+                inner_sl.game_id,
+                inner_sl.team_id
+              FROM stat_lines AS inner_sl
+              GROUP BY inner_sl.game_id,
+                inner_sl.team_id) AS opp
+              ON opp.game_id = games.nba_id
+                AND opp.team_id != teams.nba_id")
+          .group("opp.dreb")
+          .select("SUM(stat_lines.fga)
+            + (0.4 * SUM(stat_lines.fta))
+            - 1.07 * (SUM(stat_lines.oreb) / round((SUM(stat_lines.oreb) + opp.dreb), 2))
+            * (SUM(stat_lines.fga) - SUM(stat_lines.fgm))
+            + SUM(stat_lines.to) as value")
+    end
+
+    def points_per_possession(scope)
+        scope
+          .joins("LEFT JOIN (
+              SELECT SUM(inner_sl.dreb) AS dreb,
+                inner_sl.game_id,
+                inner_sl.team_id
+              FROM stat_lines AS inner_sl
+              GROUP BY inner_sl.game_id,
+                inner_sl.team_id) AS opp
+              ON opp.game_id = games.nba_id
+                AND opp.team_id != teams.nba_id")
+          .group("opp.dreb")
+          .select("((((SUM(stat_lines.fgm) - SUM(stat_lines.fg3m)) * 2)
+            + (SUM(stat_lines.fg3m) * 3)
+            + (SUM(stat_lines.ftm) * 1)) /  (SUM(stat_lines.fga)
+            + (0.4 * SUM(stat_lines.fta))
+            - 1.07 * (SUM(stat_lines.oreb) / round((SUM(stat_lines.oreb) + opp.dreb), 2))
+            * (SUM(stat_lines.fga) - SUM(stat_lines.fgm))
+            + SUM(stat_lines.to))) AS value")
+    end
+
+    def allowed_points_per_possession(scope)
+        scope
+          .joins("LEFT JOIN (
+              SELECT SUM(inner_sl.dreb) AS dreb,
+                SUM(inner_sl.fgm) AS fgm,
+                SUM(inner_sl.fg3m) AS fg3m,
+                SUM(inner_sl.ftm) AS ftm,
+                inner_sl.game_id,
+                inner_sl.team_id
+              FROM stat_lines AS inner_sl
+              GROUP BY inner_sl.game_id,
+                inner_sl.team_id) AS opp
+              ON opp.game_id = games.nba_id
+                AND opp.team_id != teams.nba_id")
+          .group("opp.dreb, opp.fgm, opp.ftm, opp.fg3m")
+          .select("((((opp.fgm - opp.fg3m) * 2)
+            + (opp.fg3m * 3)
+            + (opp.ftm * 1)) /  (SUM(stat_lines.fga)
+            + (0.4 * SUM(stat_lines.fta))
+            - 1.07 * (SUM(stat_lines.oreb) / round((SUM(stat_lines.oreb) + opp.dreb), 2))
+            * (SUM(stat_lines.fga) - SUM(stat_lines.fgm))
+            + SUM(stat_lines.to))) AS value")
     end
   end
 end
