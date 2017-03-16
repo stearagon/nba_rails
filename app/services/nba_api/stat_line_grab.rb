@@ -19,7 +19,12 @@ module NBAApi
             p "Starting to get stat lines for game ##{game.nba_id}"
 
             begin
+              p link_builder(game.nba_id)
               stat_line_json = HTTP.get(link_builder(game.nba_id)).parse
+              p stat_line_json
+
+              p link_builder(game.nba_id)
+              p stat_line_json
 
               stat_line_json['resultSets'][0]['rowSet'].each do |stat_line|
                 stat_data = grab_specific_stat_line_data(stat_line)
