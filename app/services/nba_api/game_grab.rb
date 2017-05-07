@@ -6,8 +6,17 @@ module NBAApi
     end
 
     def get_games
-      games_url_get = HTTP.get(link_builder)
-      games_json = games_url_get.status != 404 ? games_url_get.parse['games'] : []
+      p link_builder
+      uri = URI(link_builder)
+      user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5"
+
+      req = Net::HTTP::Get.new(uri, { 'User-Agent' => user_agent })
+
+      res = Net::HTTP.start(uri.hostname, uri.port) {|http|
+          http.request(req)
+      }
+
+      games_json = res.class == Net::HTTPOK ? JSON.parse(res.body)['games'] : []
 
       games_json.each do |game|
         game_data = grab_specific_game_data(game)

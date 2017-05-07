@@ -44,10 +44,10 @@ class Games < Thor
       ::NBAApi::RefereeGrab.new(date).get_referees
       p "updated refs for #{date}"
 
-      p "started shot charts for #{date}"
-      shot_chart_season = ::Helpers::SeasonHelper.season_finder(date)
-      ::NBAApi::ShotChartGrab.new(date, shot_chart_season, 'Regular+Season').get_shot_charts
-      p "updated shot charts for #{date}"
+      # p "started shot charts for #{date}"
+      # shot_chart_season = ::Helpers::SeasonHelper.season_finder(date)
+      # ::NBAApi::ShotChartGrab.new(date, shot_chart_season, 'Regular+Season').get_shot_charts
+      # p "updated shot charts for #{date}"
     end
   end
 

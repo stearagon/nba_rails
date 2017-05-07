@@ -5,7 +5,16 @@ module NBAApi
     end
 
     def get_player_info
-        player_json = HTTP.get(link_builder).parse
+        uri = URI(link_builder)
+        user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5"
+
+        req = Net::HTTP::Get.new(uri, { 'User-Agent' => user_agent })
+
+        res = Net::HTTP.start(uri.hostname, uri.port) {|http|
+            http.request(req)
+        }
+
+        player_json = JSON.parse(res.body)
         all_player_data = player_json['resultSets'].first['rowSet']
 
         all_player_data.each do |player|

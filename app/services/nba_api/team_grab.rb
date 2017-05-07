@@ -37,7 +37,16 @@ module NBAApi
 
     def get_team_info
       TEAM_CODES.each do |name, id|
-        team_json = HTTP.get(link_builder(id)).parse
+        uri = URI(link_builder(id))
+        user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5"
+
+        req = Net::HTTP::Get.new(uri, { 'User-Agent' => user_agent })
+
+        res = Net::HTTP.start(uri.hostname, uri.port) {|http|
+            http.request(req)
+        }
+
+        team_json = JSON.parse(res.body)
         team_data = grab_specific_team_data(team_json['resultSets'].first['rowSet'][0])
         team_record = Team.where(nba_id: team_data[:nba_id]).first
         city_record = City.where(name: team_data[:city], season: @season, team_id: team_data[:nba_id]).first

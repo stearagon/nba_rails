@@ -21,7 +21,16 @@ module NBAApi
             team = stat_line.team
 
             begin
-              shot_chart_json = HTTP.get(link_builder(player, game, stat_line)).parse
+              uri = URI(link_builder(player, game, stat_line))
+              user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5"
+
+              req = Net::HTTP::Get.new(uri, { 'User-Agent' => user_agent })
+
+              res = Net::HTTP.start(uri.hostname, uri.port) {|http|
+                  http.request(req)
+              }
+
+              shot_chart_json = JSON.parse(res.body)
 
               shot_chart_json['resultSets'][0]['rowSet'].each do |shot_chart|
                 shot_chart_data = grab_specific_shot_chart_data(shot_chart)

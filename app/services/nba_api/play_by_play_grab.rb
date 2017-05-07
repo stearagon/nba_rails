@@ -8,7 +8,16 @@ module NBAApi
     end
 
     def get_plays
-      play_by_play_json = HTTP.get(link_builder).parse
+      uri = URI(link_builder)
+      user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5"
+
+      req = Net::HTTP::Get.new(uri, { 'User-Agent' => user_agent })
+
+      res = Net::HTTP.start(uri.hostname, uri.port) {|http|
+          http.request(req)
+      }
+
+      play_by_play_json = JSON.parse(res.body)
 
       play_by_play_json['resultSets'][0]['rowSet'].each do |play|
         play_data = grab_specific_play_data(play)

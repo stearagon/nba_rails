@@ -18,7 +18,16 @@ module NBAApi
             p "Starting to get traking stat lines for game##{game.nba_id}"
 
             begin
-              tracking_stat_line_json = HTTP.get(link_builder(game.nba_id)).parse
+              uri = URI(link_builder(game.nba_id))
+              user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5"
+
+              req = Net::HTTP::Get.new(uri, { 'User-Agent' => user_agent })
+
+              res = Net::HTTP.start(uri.hostname, uri.port) {|http|
+                  http.request(req)
+              }
+
+              tracking_stat_line_json = JSON.parse(res.body)
 
               tracking_stat_line_json['resultSets'][0]['rowSet'].each do |tracking_stat_line|
                 tracking_stat_data = grab_specific_tracking_stat_line_data(tracking_stat_line)

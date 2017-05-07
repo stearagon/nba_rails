@@ -15,9 +15,16 @@ module NBAApi
           p "Starting to get ref data for game ##{game.nba_id}"
 
           begin
-            referees_url_get = HTTP.get(link_builder(game.nba_id))
-            # p link_builder(game.nba_id)
-            referees_json = referees_url_get.status != 404 ? referees_url_get.parse['resultSets'][2]['rowSet'] : []
+            uri = URI(link_builder(game.nba_id))
+            user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5"
+
+            req = Net::HTTP::Get.new(uri, { 'User-Agent' => user_agent })
+
+            res = Net::HTTP.start(uri.hostname, uri.port) {|http|
+                http.request(req)
+            }
+
+            referees_json = res.class == Net::HTTPOK ? JSON.parse(res.body)['resultSets'][2]['rowSet'] : []
 
             referees_json.each do |referee|
               referee_data = grab_specific_referee_data(referee)
