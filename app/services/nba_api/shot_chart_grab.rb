@@ -23,6 +23,7 @@ module NBAApi
             begin
               uri = URI(link_builder(player, game, stat_line))
               user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5"
+              p uri
 
               req = Net::HTTP::Get.new(uri, { 'User-Agent' => user_agent })
 

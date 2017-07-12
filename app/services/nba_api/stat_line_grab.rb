@@ -21,6 +21,7 @@ module NBAApi
             begin
               uri = URI(link_builder(game.nba_id))
               user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5"
+              p uri
 
               req = Net::HTTP::Get.new(uri, { 'User-Agent' => user_agent })
 
@@ -29,6 +30,8 @@ module NBAApi
               }
 
               stat_line_json = JSON.parse(res.body)
+              p stat_line_json
+              p stat_line_json['resultSets'][0]['rowSet']
 
               stat_line_json['resultSets'][0]['rowSet'].each do |stat_line|
                 stat_data = grab_specific_stat_line_data(stat_line)
